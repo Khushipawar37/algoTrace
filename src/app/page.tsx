@@ -1,42 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowRight,
-  BrainCircuit,
-  ChartLine,
-  Code2,
-  Cpu,
-  FlaskConical,
-  Sparkles,
-  TimerReset,
-  Workflow,
-} from "lucide-react";
+import { ArrowRight, BrainCircuit, ChartLine, Cpu, Sparkles, TimerReset, Workflow } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { HowItWorks } from "@/components/landing/how-it-works";
+import { HeroFeatureCycle } from "@/components/landing/hero-feature-cycle";
+import { UxTimeline } from "@/components/landing/ux-timeline";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-const coreFeatures = [
-  {
-    icon: BrainCircuit,
-    title: "Behavior-First Intelligence",
-    text: "Track thought patterns like pauses, pivots, and hint dependency instead of only final answers.",
-  },
-  {
-    icon: ChartLine,
-    title: "ML Weakness Vector",
-    text: "Random Forest-driven probabilities across 7 skill dimensions with interpretable signal inputs.",
-  },
-  {
-    icon: TimerReset,
-    title: "Live Coaching Loop",
-    text: "Real-time heuristics update as you code, then deeper model inference runs on demand.",
-  },
-];
 
 const tickerItems = [
   "Behavioral Tracking",
@@ -47,51 +20,79 @@ const tickerItems = [
   "Feature Engineering Pipeline",
 ];
 
+const coreFeatures = [
+  {
+    icon: BrainCircuit,
+    title: "Behavior-First Intelligence",
+    text: "Measure how the mind moves: hesitation, pivot, rewrite, and confidence shifts.",
+  },
+  {
+    icon: ChartLine,
+    title: "Live Weakness Vector",
+    text: "See real-time bars and post-run ML probabilities across your core DSA cognition dimensions.",
+  },
+  {
+    icon: TimerReset,
+    title: "Adaptive Coaching Loop",
+    text: "Heuristics react instantly; model inference deepens guidance every run.",
+  },
+];
+
 const productFeatures = [
-  { icon: ChartLine, title: "Live weakness tracker", text: "Scores update as you type and adjust strategy." },
-  { icon: Cpu, title: "FastAPI ML service", text: "Predict weakness vectors from engineered signals." },
-  { icon: Workflow, title: "Graduated hints", text: "Conceptual to near-solution hints with strict progression." },
-  { icon: Code2, title: "Monaco workspace", text: "Python, JavaScript, C++, and Java in one controlled environment." },
-  { icon: FlaskConical, title: "Interview-ready architecture", text: "Rules + ML dual-layer loop, explainable and practical." },
-  { icon: TimerReset, title: "Time-aware coaching", text: "Long pause detection triggers nudges before frustration spikes." },
+  { icon: Cpu, title: "FastAPI + RF inference", text: "Feature vectors served into explainable weakness predictions." },
+  { icon: Workflow, title: "Graduated hints", text: "Tiered hints build independence and supply richer training signal." },
+  { icon: Sparkles, title: "Session debrief", text: "Evidence-backed summary, priority weakness, and next problem recommendation." },
 ];
 
 export default function HomePage() {
   return (
     <main className="relative min-h-screen">
-      <div className="surface-grid absolute inset-0 -z-10 opacity-40" />
-      <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <BrainCircuit className="h-5 w-5" />
+      <div className="surface-grid absolute inset-0 -z-10 opacity-30" />
+
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <BrainCircuit className="h-5 w-5" />
+            </div>
+            <p className="font-[var(--font-sora)] text-xl font-semibold tracking-tight">algoTrace</p>
+            <Badge className="ml-2 hidden bg-primary/15 text-primary md:inline-flex">Behavioral DSA Coach</Badge>
           </div>
-          <p className="font-[var(--font-sora)] text-xl font-semibold tracking-tight">algoTrace</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Button asChild variant="secondary">
-            <Link href="/workspace">Open Workspace</Link>
-          </Button>
+          <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
+            <a href="#how-it-works" className="hover:text-foreground">
+              How It Works
+            </a>
+            <a href="#journey" className="hover:text-foreground">
+              User Journey
+            </a>
+            <a href="#features" className="hover:text-foreground">
+              Features
+            </a>
+          </nav>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button asChild variant="outline" className="hidden md:inline-flex">
+              <Link href="/sign-in">Sign In</Link>
+            </Button>
+            <Button asChild className="shadow-sm">
+              <Link href="/workspace">Open Workspace</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-6 pb-10 pt-8 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-4xl space-y-6"
-        >
+      <section className="mx-auto max-w-7xl px-6 pb-8 pt-12">
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           <Badge className="bg-primary/15 text-primary">AI-Powered Behavioral Coding Coach</Badge>
-          <h1 className="font-[var(--font-sora)] text-4xl font-bold leading-tight md:text-6xl">
-            Stop solving blindly.
-            <span className="block text-primary">Start understanding how you think.</span>
+          <h1 className="mt-5 max-w-4xl font-[var(--font-sora)] text-4xl font-bold leading-tight md:text-6xl">
+            Stop solving questions only.
+            <span className="block text-primary">Start understanding your problem-solving behavior.</span>
           </h1>
-          <p className="max-w-2xl text-lg text-muted-foreground">
-            algoTrace captures your coding behavior in real time, transforms it into ML-ready signals, and coaches you
-            with Socratic prompts tailored to your weakest DSA thinking patterns.
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+            algoTrace converts coding behavior into machine-learning signals, then coaches you in real time with
+            Socratic guidance tailored to your weakest DSA thinking patterns.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="mt-7 flex flex-wrap gap-3">
             <Button asChild size="lg">
               <Link href="/workspace" className="inline-flex items-center gap-2">
                 Start Solving
@@ -99,13 +100,19 @@ export default function HomePage() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/dashboard">View Progress Dashboard</Link>
+              <Link href="/dashboard">Dashboard (Login Required)</Link>
             </Button>
           </div>
         </motion.div>
       </section>
 
-      <section className="overflow-hidden border-y border-border/60 bg-muted/40 py-3">
+      <section id="how-it-works" className="mx-auto max-w-7xl px-6 pb-12">
+        <div className="rounded-3xl border border-border/60 bg-gradient-to-br from-card/80 via-card/70 to-secondary/25 p-4 md:p-6">
+          <HeroFeatureCycle />
+        </div>
+      </section>
+
+      <section className="overflow-hidden border-y border-border/60 bg-muted/35 py-3">
         <div className="ticker flex w-[200%]">
           {[...tickerItems, ...tickerItems].map((item, i) => (
             <div key={`${item}-${i}`} className="flex shrink-0 items-center px-6 text-xs text-muted-foreground">
@@ -133,19 +140,18 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section className="mx-auto max-w-7xl space-y-6 px-6 pb-12">
+      <section id="journey" className="mx-auto max-w-7xl space-y-5 px-6 pb-12">
         <div className="text-center">
-          <Badge className="bg-primary/15 text-primary">How It Works</Badge>
-          <h2 className="mt-4 font-[var(--font-sora)] text-3xl font-bold">From keystrokes to clarity</h2>
+          <Badge className="bg-primary/15 text-primary">Timeline Flowchart</Badge>
+          <h2 className="mt-3 font-[var(--font-sora)] text-3xl font-bold">How To Use algoTrace Properly</h2>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground">
-            Your event stream turns into features, features into weakness probabilities, and probabilities into coaching
-            interventions.
+            Clear step-by-step journey from sign-in to measurable performance improvement.
           </p>
         </div>
-        <HowItWorks />
+        <UxTimeline />
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-4 px-6 pb-12 md:grid-cols-3">
+      <section id="features" className="mx-auto grid max-w-7xl gap-4 px-6 pb-12 md:grid-cols-3">
         {coreFeatures.map(({ icon: Icon, title, text }) => (
           <Card key={title} className="backdrop-blur">
             <CardHeader>
@@ -161,10 +167,9 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-12">
-        <div className="mb-5 text-center">
-          <Badge className="bg-primary/15 text-primary">Features</Badge>
-          <h2 className="mt-4 font-[var(--font-sora)] text-3xl font-bold">Built for serious learners</h2>
+      <section className="mx-auto max-w-7xl px-6 pb-14">
+        <div className="mb-4 text-center">
+          <Badge className="bg-primary/15 text-primary">Product Value</Badge>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {productFeatures.map(({ icon: Icon, title, text }) => (
@@ -180,52 +185,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ))}
-        </div>
-      </section>
-
-      <section className="mx-auto grid max-w-7xl gap-4 px-6 pb-14 md:grid-cols-2">
-        <Card className="bg-gradient-to-br from-card via-card to-secondary/40">
-          <CardHeader>
-            <CardTitle>System Architecture</CardTitle>
-            <CardDescription>Built for real ML interviews and production extension.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Monaco Editor + Behavioral Event Stream {"->"} Feature Engineering Layer {"->"} Random Forest Inference API</p>
-            <p>Heuristic Sidecar updates weakness bars instantly between model calls.</p>
-            <p>Socratic Coach + Hint Escalation + Session Debrief close the feedback loop.</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-card via-card to-primary/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              Included in This Starter
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Next.js + TypeScript + Tailwind + shadcn-style components + theme toggle</p>
-            <p>Workspace with language switching, hints, coach panel, and run/analyze loop</p>
-            <p>API routes for sessions, events, inference, coaching prompts, reports, and problem recommendations</p>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="border-t border-border/60 bg-muted/30 px-6 py-16 text-center">
-        <Badge className="bg-primary/15 text-primary">No testimonials shown, as requested</Badge>
-        <h2 className="mx-auto mt-4 max-w-2xl font-[var(--font-sora)] text-4xl font-bold">
-          Ready to understand how you actually solve?
-        </h2>
-        <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-          Pick a problem, code naturally, and let algoTrace reveal the patterns that are helping or hurting your DSA
-          growth.
-        </p>
-        <div className="mt-6">
-          <Button asChild size="lg">
-            <Link href="/workspace" className="inline-flex items-center gap-2">
-              Start Your First Session
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
         </div>
       </section>
     </main>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft, Flame, Goal, TrendingDown, Zap } from "lucide-react";
 
 import { ProgressChart } from "@/components/dashboard/progress-chart";
@@ -6,6 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { isStackServerConfigured, stackServerApp } from "@/stack";
 
 const kpis = [
   { icon: TrendingDown, label: "Optimization weakness", value: "78 -> 49", detail: "-29 in 5 sessions" },
@@ -14,7 +16,15 @@ const kpis = [
   { icon: Flame, label: "Practice streak", value: "12 days", detail: "Best streak so far" },
 ];
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  if (!isStackServerConfigured || !stackServerApp) {
+    redirect("/sign-in?returnTo=/dashboard");
+  }
+  const user = await stackServerApp.getUser();
+  if (!user) {
+    redirect("/sign-in?returnTo=/dashboard");
+  }
+
   return (
     <main className="mx-auto w-full max-w-7xl space-y-4 px-4 py-6 md:px-6">
       <header className="flex items-center justify-between rounded-xl border border-border/60 bg-card/80 px-4 py-3">
@@ -92,4 +102,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
