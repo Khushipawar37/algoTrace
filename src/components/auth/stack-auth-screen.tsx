@@ -26,11 +26,11 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
         mode === "sign-in"
           ? await stackClientApp.signInWithCredential({ email, password, noRedirect: true })
           : await stackClientApp.signUpWithCredential({
-              email,
-              password,
-              noRedirect: true,
-              noVerificationCallback: true,
-            });
+            email,
+            password,
+            noRedirect: true,
+            noVerificationCallback: true,
+          });
 
       if (result.status === "ok") {
         router.push(targetRoute);
