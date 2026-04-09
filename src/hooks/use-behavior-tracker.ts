@@ -10,7 +10,11 @@ interface TrackerConfig {
   onLongPause?: () => void;
 }
 
-export function useBehaviorTracker({ sessionId, userId, onLongPause }: TrackerConfig) {
+export function useBehaviorTracker({
+  sessionId,
+  userId,
+  onLongPause,
+}: TrackerConfig) {
   const [events, setEvents] = useState<BehavioralEvent[]>([]);
   const lastActivityRef = useRef(Date.now());
   const pauseTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -47,4 +51,3 @@ export function useBehaviorTracker({ sessionId, userId, onLongPause }: TrackerCo
 
   return { events, track, setEvents };
 }
-
