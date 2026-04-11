@@ -88,7 +88,7 @@ function renderPanel(panel: string) {
         You are using nested loops. Can you reduce repeated lookup cost?
       </p>
       <p className="rounded-xl border border-[#3a311f] bg-[#18140f] p-3 text-[#d8bf8b]">
-        maybe I can use a hashmap to store values I've seen?
+        maybe I can use a hashmap to store values I&apos;ve seen?
       </p>
     </div>
   );
@@ -124,16 +124,16 @@ export function HeroFeatureCycle() {
             key={feature.title}
             onClick={() => setActive(index)}
             className={cn(
-              "w-full rounded-2xl border p-6 text-left transition",
+              "w-full rounded-2xl border p-6 text-left transition-all duration-300",
               active === index
-                ? "border-[#75613a] bg-[#17140f]/70 shadow-[0_0_0_1px_rgba(189,151,83,0.35)_inset]"
-                : "border-border/60 bg-card/50 hover:border-[#5d4f34]",
+                ? "border-primary/40 bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)_inset] dark:border-[#75613a] dark:bg-[#17140f]/70 dark:shadow-[0_0_0_1px_rgba(189,151,83,0.35)_inset]"
+                : "border-border/60 bg-card/50 hover:border-primary/30 hover:bg-card/80",
             )}
           >
             <div className="mb-2 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#8f8061]">{feature.id}</p>
+              <p className="font-mono text-xs text-primary/70 dark:text-[#8f8061]">{feature.id}</p>
               {active === index && (
-                <span className="rounded-full border border-[#6f5a35] bg-[#1b150d] px-2 py-0.5 font-mono text-[11px] text-[#c9ab74]">
+                <span className="rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 font-mono text-[11px] text-primary dark:border-[#6f5a35] dark:bg-[#1b150d] dark:text-[#c9ab74]">
                   next in {countdown}s
                 </span>
               )}
@@ -144,12 +144,13 @@ export function HeroFeatureCycle() {
         ))}
       </div>
 
+      {/* Terminal mock — always dark for authenticity */}
       <div className="overflow-hidden rounded-3xl border border-[#393225] bg-[#0f0d09]">
         <div className="flex items-center gap-2 border-b border-[#2b261d] px-4 py-3">
           <span className="h-2.5 w-2.5 rounded-full bg-[#ef4444]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#f59e0b]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]" />
-          <span className="ml-3 font-mono text-sm text-[#8d887d]">two_sum.py - algoTrace</span>
+          <span className="ml-3 font-mono text-sm text-[#8d887d]">two_sum.py — algoTrace</span>
         </div>
         <div className="space-y-4 p-5">
           <div className="flex items-center gap-3">

@@ -57,15 +57,24 @@ export interface SessionReport {
   nextProblemSuggestion: string;
 }
 
+export interface ProblemExample {
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 export interface Problem {
   id: string;
   title: string;
   slug: string;
   tier: "Easy" | "Medium" | "Hard";
   topic: string;
+  tags: string[];
   weaknessAreas: WeaknessKey[];
   prompt: string;
+  description: string;
+  examples: ProblemExample[];
+  constraints: string[];
   hints: [string, string, string];
   starterCode: Record<string, string>;
 }
-
