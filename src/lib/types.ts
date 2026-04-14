@@ -78,3 +78,19 @@ export interface Problem {
   hints: [string, string, string];
   starterCode: Record<string, string>;
 }
+
+export type TutorHintLevel =
+  | "nudge"
+  | "guided"
+  | "structural"
+  | "skeleton"
+  | "full_solution";
+
+export interface TutorMessage {
+  id: string;
+  role: "user" | "tutor" | "system";
+  content: string;
+  timestamp: number;
+  hintLevel?: TutorHintLevel;
+  codeSnapshot?: string;
+}

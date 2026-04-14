@@ -15,7 +15,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/workspace", label: "Workspace" },
   { href: "/dashboard", label: "Dashboard" },
-];
+] as const;
 
 export function Navbar() {
   const [sliderOpen, setSliderOpen] = useState(false);

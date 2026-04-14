@@ -10,7 +10,7 @@ import { computeHeuristicWeakness } from "@/lib/heuristics";
 import type { Problem, WeaknessVector } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CoachPanel } from "@/components/workspace/coach-panel";
+import { DSATutor } from "@/components/workspace/dsa-tutor";
 import { HintPanel } from "@/components/workspace/hint-panel";
 import { WeaknessTracker } from "@/components/workspace/weakness-tracker";
 
@@ -33,7 +33,6 @@ export function CodingWorkspace({ problem }: { problem: Problem }) {
   const [code, setCode] = useState(problem.starterCode.javascript);
   const [hintCount, setHintCount] = useState(0);
   const [weakness, setWeakness] = useState<WeaknessVector>(fallbackWeakness);
-  const [messages, setMessages] = useState<string[]>([]);
   const [startedAt] = useState(Date.now());
   const sessionId = useMemo(() => crypto.randomUUID(), []);
   const userId = "demo-user";
@@ -41,9 +40,6 @@ export function CodingWorkspace({ problem }: { problem: Problem }) {
   const { events, track } = useBehaviorTracker({
     sessionId,
     userId,
-    onLongPause: () => {
-      setMessages((prev) => [...prev, "Coach: You've paused for a bit. What part feels uncertain right now?"]);
-    },
   });
 
   function onCodeChange(newCode: string | undefined) {
@@ -76,103 +72,91 @@ export function CodingWorkspace({ problem }: { problem: Problem }) {
     setWeakness(result.weakness);
   }
 
-  async function onSendCoachMessage(message: string) {
-    const response = await fetch("/api/coach", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message,
-        code,
-        weakness,
-        hintLevel: hintCount,
-        problemTitle: problem.title,
-      }),
-    });
-    const data = (await response.json()) as { reply: string };
-    setMessages((prev) => [...prev, `You: ${message}`, `Coach: ${data.reply}`]);
-  }
-
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
-      <Card className="overflow-hidden">
-        <CardHeader className="border-b border-border/60 bg-muted/40">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <CardTitle>{problem.title}</CardTitle>
-              <CardDescription>{problem.prompt}</CardDescription>
+    <div className="grid h-full gap-3 lg:grid-cols-[minmax(0,1fr)_440px]">
+      {/* Left column: editor takes maximum space */}
+      <div className="flex h-full flex-col overflow-hidden">
+        <Card className="flex h-full flex-col overflow-hidden">
+          <CardHeader className="border-b border-border/60 bg-muted/40">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <CardTitle>{problem.title}</CardTitle>
+                <CardDescription>{problem.prompt}</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+                  value={language}
+                  onChange={(event) => {
+                    const nextLanguage = event.target.value as SupportedLanguage;
+                    setLanguage(nextLanguage);
+                    setCode(problem.starterCode[nextLanguage]);
+                    track("language_switch", { language: nextLanguage });
+                  }}
+                >
+                  <option value="javascript">JavaScript</option>
+                  <option value="python">Python</option>
+                  <option value="cpp">C++</option>
+                  <option value="java">Java</option>
+                </select>
+                <Button onClick={onRun}>
+                  <Play className="mr-2 h-4 w-4" />
+                  Run + Analyze
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <select
-                className="h-10 rounded-md border border-border bg-background px-3 text-sm"
-                value={language}
-                onChange={(event) => {
-                  const nextLanguage = event.target.value as SupportedLanguage;
-                  setLanguage(nextLanguage);
-                  setCode(problem.starterCode[nextLanguage]);
-                  track("language_switch", { language: nextLanguage });
-                }}
-              >
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="cpp">C++</option>
-                <option value="java">Java</option>
-              </select>
-              <Button onClick={onRun}>
-                <Play className="mr-2 h-4 w-4" />
-                Run + Analyze
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <MonacoEditor
+          </CardHeader>
+          <CardContent className="flex-1 p-0">
+            <MonacoEditor
+              language={language}
+              value={code}
+              onChange={onCodeChange}
+              theme="vs-dark"
+              options={{
+                minimap: { enabled: false },
+                fontSize: 15,
+                lineNumbers: "on",
+                scrollBeyondLastLine: false,
+              }}
+              height="100%"
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right column: Tutor on top, hints/weakness below */}
+      <div className="flex h-full flex-col gap-3">
+        <Card className="relative min-h-0 flex-1 overflow-hidden">
+          <DSATutor
+            problem={problem}
+            code={code}
             language={language}
-            value={code}
-            onChange={onCodeChange}
-            theme="vs-dark"
-            options={{
-              minimap: { enabled: false },
-              fontSize: 15,
-              lineNumbers: "on",
-              scrollBeyondLastLine: false,
-            }}
-            height="560px"
+            weakness={weakness}
+            hintCount={hintCount}
           />
-        </CardContent>
-      </Card>
-      <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Sparkles className="h-4 w-4" />
-              Real-Time Weakness Tracker
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <WeaknessTracker weakness={weakness} />
-          </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Graduated Hint System</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <HintPanel hints={problem.hints} revealedCount={hintCount} onRequest={onRequestHint} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Bot className="h-4 w-4" />
-              Socratic AI Coach
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CoachPanel messages={messages} onSend={onSendCoachMessage} />
-          </CardContent>
-        </Card>
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Sparkles className="h-3.5 w-3.5" />
+                Weakness Tracker
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pb-3">
+              <WeaknessTracker weakness={weakness} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Graduated Hints</CardTitle>
+            </CardHeader>
+            <CardContent className="pb-3">
+              <HintPanel hints={problem.hints} revealedCount={hintCount} onRequest={onRequestHint} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
 }
-

@@ -16,6 +16,7 @@ export const stackServerApp = isStackServerConfigured
       urls: {
         signIn: "/sign-in",
         signUp: "/sign-up",
+        emailVerification: "/verify-email",
         afterSignIn: "/dashboard",
         afterSignUp: "/dashboard",
         home: "/",
@@ -31,6 +32,7 @@ export const stackClientApp = isStackClientConfigured
       urls: {
         signIn: "/sign-in",
         signUp: "/sign-up",
+        emailVerification: "/verify-email",
         afterSignIn: "/dashboard",
         afterSignUp: "/dashboard",
         home: "/",

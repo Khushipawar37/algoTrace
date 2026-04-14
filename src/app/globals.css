@@ -218,3 +218,110 @@ body {
 .pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* DSA TUTOR — Chat & UI Styles                                  */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* — Tutor message bubble — */
+.tutor-bubble-tutor {
+  animation: tutor-fade-in 0.3s ease-out forwards;
+  transform-origin: top left;
+}
+
+.tutor-bubble-user {
+  animation: tutor-fade-in 0.25s ease-out forwards;
+  transform-origin: top right;
+}
+
+@keyframes tutor-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* — Typing indicator dots — */
+.tutor-typing {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding-left: 4px;
+}
+
+.tutor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  opacity: 0.4;
+  animation: tutor-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes tutor-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+/* — Quick action chips — */
+.tutor-chip {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.tutor-chip:hover {
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+}
+
+/* — Code block inside tutor messages — */
+.tutor-code-block {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  transition: border-color 0.2s ease;
+}
+
+.tutor-code-block:hover {
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+/* — Tutor content prose spacing — */
+.tutor-content > div + div {
+  margin-top: 2px;
+}
+
+/* — Message wrapper animation stagger — */
+.tutor-message-wrapper {
+  animation: tutor-fade-in 0.3s ease-out forwards;
+}
+
+/* — Hide scrollbar for chip row — */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* — Custom scrollbar for tutor chat — */
+.tutor-bubble-tutor::-webkit-scrollbar,
+.tutor-bubble-user::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tutor-bubble-tutor::-webkit-scrollbar-thumb,
+.tutor-bubble-user::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
