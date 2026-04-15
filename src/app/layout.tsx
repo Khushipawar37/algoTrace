@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "algoTrace | Behavioral DSA Coach",
+  title: "AlgoTrace | Behavioral DSA Coach",
   description:
     "AI-powered behavioral coaching system for DSA practice. Track coding behavior, identify weaknesses, and improve with Socratic guidance.",
   keywords: ["DSA", "coding coach", "behavioral analysis", "algorithm practice", "AI coaching"],

@@ -1,7 +1,7 @@
 {
   "name": "algotrace",
   "version": "1.0.0",
-  "description": "algoTrace - AI-powered behavioral coding coach for DSA",
+  "description": "AlgoTrace - AI-powered behavioral coding coach for DSA",
   "private": true,
   "scripts": {
     "dev": "next dev",

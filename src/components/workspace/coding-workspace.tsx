@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { Bot, Play, Sparkles } from "lucide-react";
+import { Play, Sparkles } from "lucide-react";
 
+import { useTheme } from "@/components/theme-provider";
 import { useBehaviorTracker } from "@/hooks/use-behavior-tracker";
 import { buildFeatureVector } from "@/lib/feature-engineering";
 import { computeHeuristicWeakness } from "@/lib/heuristics";
@@ -29,6 +30,7 @@ const fallbackWeakness: WeaknessVector = {
 type SupportedLanguage = "javascript" | "python" | "cpp" | "java";
 
 export function CodingWorkspace({ problem }: { problem: Problem }) {
+  const { resolvedTheme } = useTheme();
   const [language, setLanguage] = useState<SupportedLanguage>("javascript");
   const [code, setCode] = useState(problem.starterCode.javascript);
   const [hintCount, setHintCount] = useState(0);
@@ -111,11 +113,25 @@ export function CodingWorkspace({ problem }: { problem: Problem }) {
               language={language}
               value={code}
               onChange={onCodeChange}
-              theme="vs-dark"
+              theme={resolvedTheme === "dark" ? "vs-dark" : "vs"}
               options={{
                 minimap: { enabled: false },
                 fontSize: 15,
                 lineNumbers: "on",
+                fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+                automaticLayout: true,
+                smoothScrolling: true,
+                cursorBlinking: "smooth",
+                cursorSmoothCaretAnimation: "on",
+                linkedEditing: true,
+                suggestOnTriggerCharacters: true,
+                quickSuggestions: true,
+                bracketPairColorization: { enabled: true },
+                autoClosingBrackets: "always",
+                autoClosingQuotes: "always",
+                formatOnPaste: true,
+                formatOnType: true,
+                tabSize: 2,
                 scrollBeyondLastLine: false,
               }}
               height="100%"

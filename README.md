@@ -1,4 +1,4 @@
-# algoTrace
+# AlgoTrace
 
 AI-powered behavioral coding coach for DSA built with Next.js, TypeScript, Tailwind, and shadcn-style UI patterns.
 

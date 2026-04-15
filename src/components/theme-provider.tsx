@@ -15,7 +15,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [resolvedTheme, setResolvedTheme] = useState<ThemeName>("light");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("algotrace-theme");
+    const stored = window.localStorage.getItem("AlgoTrace-theme");
     if (stored === "light" || stored === "dark") {
       setResolvedTheme(stored);
       return;
@@ -27,7 +27,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
-    window.localStorage.setItem("algotrace-theme", resolvedTheme);
+    window.localStorage.setItem("AlgoTrace-theme", resolvedTheme);
   }, [resolvedTheme]);
 
   const value = useMemo(

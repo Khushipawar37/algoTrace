@@ -2,23 +2,53 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { stackClientApp } from "@/stack";
 
 export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up"; returnTo?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [checkingSession, setCheckingSession] = useState(mode === "sign-in");
   const router = useRouter();
 
-  const targetRoute = returnTo === "/dashboard" ? "/dashboard" : "/";
+  const targetRoute = returnTo === "/" ? "/" : "/dashboard";
+
+  useEffect(() => {
+    let active = true;
+    async function checkExistingSession() {
+      if (!stackClientApp || mode !== "sign-in") return;
+      try {
+        const user = await stackClientApp.getUser({ includeRestricted: true });
+        if (!active || !user) return;
+        if (user.isRestricted) {
+          router.replace(
+            user.primaryEmail ? `/verify-email?email=${encodeURIComponent(user.primaryEmail)}` : "/verify-email",
+          );
+          return;
+        }
+        router.replace(targetRoute);
+      } finally {
+        if (active) setCheckingSession(false);
+      }
+    }
+    void checkExistingSession();
+    return () => {
+      active = false;
+    };
+  }, [mode, router, targetRoute]);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!stackClientApp) return;
+    if (mode === "sign-up" && password !== confirmPassword) {
+      setError("Password and confirm password do not match.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     setInfo(null);
@@ -43,7 +73,7 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
           router.refresh();
         }
       } else {
-        setError("Authentication failed. Please check credentials and try again.");
+        setError(result.error?.message || "Authentication failed. Please check credentials and try again.");
       }
     } catch {
       setError("Something went wrong while contacting auth service.");
@@ -69,6 +99,17 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
     );
   }
 
+  if (checkingSession) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-6">
+        <div className="w-full space-y-3 rounded-xl border border-border/60 bg-card p-6 text-center">
+          <h1 className="font-[var(--font-sora)] text-2xl font-bold">Checking Session</h1>
+          <p className="text-sm text-muted-foreground">Please wait...</p>
+        </div>
+      </main>
+    );
+  }
+
   async function onGoogle() {
     if (!stackClientApp) return;
     setSubmitting(true);
@@ -86,7 +127,7 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-6">
       <form onSubmit={onSubmit} className="w-full space-y-4 rounded-xl border border-border/60 bg-card p-6">
         <h1 className="font-[var(--font-sora)] text-2xl font-bold">
-          {mode === "sign-in" ? "Sign In to algoTrace" : "Create your algoTrace account"}
+          {mode === "sign-in" ? "Sign In to AlgoTrace" : "Create your AlgoTrace account"}
         </h1>
         <p className="text-sm text-muted-foreground">
           {mode === "sign-in" ? "Welcome back. Continue your learning journey." : "Start tracking your coding behavior today."}
@@ -138,6 +179,22 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
             className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm outline-none ring-primary/30 focus:ring-2"
           />
         </div>
+
+        {mode === "sign-up" && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="confirmPassword">
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm outline-none ring-primary/30 focus:ring-2"
+            />
+          </div>
+        )}
 
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         {info && <p className="text-sm text-green-700 dark:text-green-400">{info}</p>}

@@ -11,7 +11,7 @@ const steps = [
   },
   {
     title: "Code Naturally",
-    desc: "algoTrace tracks pauses, rewrites, hint dependency, and approach pivots silently in the background.",
+    desc: "AlgoTrace tracks pauses, rewrites, hint dependency, and approach pivots silently in the background.",
   },
   {
     title: "Run + Analyze",
@@ -44,4 +44,3 @@ export function UxTimeline() {
     </div>
   );
 }
-

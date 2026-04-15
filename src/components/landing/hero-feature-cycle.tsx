@@ -150,14 +150,14 @@ export function HeroFeatureCycle() {
           <span className="h-2.5 w-2.5 rounded-full bg-[#ef4444]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#f59e0b]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]" />
-          <span className="ml-3 font-mono text-sm text-[#8d887d]">two_sum.py — algoTrace</span>
+          <span className="ml-3 font-mono text-sm text-[#8d887d]">two_sum.py — AlgoTrace</span>
         </div>
         <div className="space-y-4 p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2d2111] font-semibold text-[#ebca87]">
               A
             </div>
-            <p className="font-semibold text-[#d9d7cf]">algoTrace Coach</p>
+            <p className="font-semibold text-[#d9d7cf]">AlgoTrace Coach</p>
             <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
           </div>
           {renderPanel(features[active].panel)}

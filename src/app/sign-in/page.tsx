@@ -6,5 +6,6 @@ export default async function SignInPage({
   searchParams: Promise<{ returnTo?: string }>;
 }) {
   const params = await searchParams;
-  return <StackAuthScreen mode="sign-in" returnTo={params.returnTo} />;
+  const returnTo = params.returnTo === "/" ? "/" : "/dashboard";
+  return <StackAuthScreen mode="sign-in" returnTo={returnTo} />;
 }

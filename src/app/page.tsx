@@ -118,7 +118,7 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            algoTrace converts coding behavior into machine-learning signals, then coaches you in
+            AlgoTrace converts coding behavior into machine-learning signals, then coaches you in
             real time with Socratic guidance tailored to your weakest DSA thinking patterns.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -211,7 +211,7 @@ export default function HomePage() {
         >
           <Badge className="bg-primary/15 text-primary">Timeline Flowchart</Badge>
           <h2 className="mt-3 font-[var(--font-sora)] text-3xl font-bold">
-            How To Use algoTrace Properly
+            How To Use AlgoTrace Properly
           </h2>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground">
             Clear step-by-step journey from sign-in to measurable performance improvement.
@@ -330,7 +330,7 @@ export default function HomePage() {
               Ready to understand your coding brain?
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base opacity-90">
-              Join algoTrace and transform random practice into systematic cognitive improvement.
+              Join AlgoTrace and transform random practice into systematic cognitive improvement.
               Start your first session in under 30 seconds.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -369,7 +369,7 @@ export default function HomePage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <BrainCircuit className="h-4 w-4" />
             </div>
-            <p className="font-[var(--font-sora)] text-lg font-semibold">algoTrace</p>
+            <p className="font-[var(--font-sora)] text-lg font-semibold">AlgoTrace</p>
           </div>
 
           <nav className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
@@ -394,7 +394,7 @@ export default function HomePage() {
           </nav>
 
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} algoTrace. Built for better coders.
+            © {new Date().getFullYear()} AlgoTrace. Built for better coders.
           </p>
         </div>
       </footer>

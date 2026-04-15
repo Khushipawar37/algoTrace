@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Menu } from "lucide-react";
+import { BrainCircuit, Loader2, LogOut, Menu, UserCircle2 } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { RightSlider } from "@/components/right-slider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { stackClientApp } from "@/stack";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -19,10 +20,51 @@ const navLinks = [
 
 export function Navbar() {
   const [sliderOpen, setSliderOpen] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+  const [currentUser, setCurrentUser] = useState<{ displayName: string | null; primaryEmail: string | null } | null>(null);
   const pathname = usePathname();
+  const hideNavbar = pathname.startsWith("/workspace") || pathname.startsWith("/dashboard");
 
-  // Don't render navbar on workspace or dashboard pages (they have their own headers)
-  if (pathname.startsWith("/workspace") || pathname.startsWith("/dashboard")) {
+  useEffect(() => {
+    let active = true;
+    async function loadUser() {
+      if (!stackClientApp) {
+        if (active) {
+          setCurrentUser(null);
+          setLoadingAuth(false);
+        }
+        return;
+      }
+      try {
+        const user = await stackClientApp.getUser();
+        if (!active) return;
+        if (user) {
+          setCurrentUser({
+            displayName: user.displayName,
+            primaryEmail: user.primaryEmail,
+          });
+        } else {
+          setCurrentUser(null);
+        }
+      } finally {
+        if (active) setLoadingAuth(false);
+      }
+    }
+    void loadUser();
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
+
+  async function onLogout() {
+    if (!stackClientApp) return;
+    await stackClientApp.signOut({ redirectUrl: "/" });
+    setCurrentUser(null);
+    setSliderOpen(false);
+  }
+
+  // Keep hooks order stable; only conditionally render after hooks are declared.
+  if (hideNavbar) {
     return null;
   }
 
@@ -35,7 +77,7 @@ export function Navbar() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <BrainCircuit className="h-5 w-5" />
             </div>
-            <p className="font-[var(--font-sora)] text-xl font-semibold tracking-tight">algoTrace</p>
+            <p className="font-[var(--font-sora)] text-xl font-semibold tracking-tight">AlgoTrace</p>
             <Badge className="ml-1 hidden bg-primary/15 text-primary md:inline-flex">
               Behavioral DSA Coach
             </Badge>
@@ -62,12 +104,34 @@ export function Navbar() {
           {/* Desktop actions */}
           <div className="hidden items-center gap-2 md:flex">
             <ThemeToggle />
-            <Button asChild variant="outline" size="sm">
-              <Link href="/sign-in">Sign In</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/sign-up">Get Started</Link>
-            </Button>
+            {loadingAuth ? (
+              <Button variant="outline" size="sm" disabled>
+                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                Checking
+              </Button>
+            ) : currentUser ? (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/dashboard">
+                    <UserCircle2 className="mr-1.5 h-4 w-4" />
+                    {currentUser.displayName ?? currentUser.primaryEmail ?? "Profile"}
+                  </Link>
+                </Button>
+                <Button onClick={onLogout} size="sm" variant="secondary">
+                  <LogOut className="mr-1.5 h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/sign-in?returnTo=/dashboard">Sign In</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href="/sign-up">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile actions */}
@@ -107,16 +171,33 @@ export function Navbar() {
         <div className="my-4 h-px bg-border/40" />
 
         <div className="flex flex-col gap-2">
-          <Button asChild variant="outline" className="w-full justify-center">
-            <Link href="/sign-in" onClick={() => setSliderOpen(false)}>
-              Sign In
-            </Link>
-          </Button>
-          <Button asChild className="w-full justify-center">
-            <Link href="/sign-up" onClick={() => setSliderOpen(false)}>
-              Get Started
-            </Link>
-          </Button>
+          {currentUser ? (
+            <>
+              <Button asChild variant="outline" className="w-full justify-center">
+                <Link href="/dashboard" onClick={() => setSliderOpen(false)}>
+                  <UserCircle2 className="mr-1.5 h-4 w-4" />
+                  Profile / Dashboard
+                </Link>
+              </Button>
+              <Button className="w-full justify-center" variant="secondary" onClick={onLogout}>
+                <LogOut className="mr-1.5 h-4 w-4" />
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="outline" className="w-full justify-center">
+                <Link href="/sign-in?returnTo=/dashboard" onClick={() => setSliderOpen(false)}>
+                  Sign In
+                </Link>
+              </Button>
+              <Button asChild className="w-full justify-center">
+                <Link href="/sign-up" onClick={() => setSliderOpen(false)}>
+                  Get Started
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <div className="my-4 h-px bg-border/40" />
