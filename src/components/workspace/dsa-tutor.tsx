@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import type { Problem, TutorHintLevel, TutorMessage, WeaknessVector } from "@/lib/types";
+import type {
+  Problem,
+  TutorHintLevel,
+  TutorMessage,
+  WeaknessVector,
+} from "@/lib/types";
 import { buildWelcomeMessage } from "@/lib/tutor-prompt";
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -33,12 +38,46 @@ interface DSATutorProps {
 }
 
 /* — Quick action chip definitions — */
-const quickActions: { label: string; icon: typeof Lightbulb; hintLevel: TutorHintLevel; message: string }[] = [
-  { label: "Nudge", icon: Lightbulb, hintLevel: "nudge", message: "Give me a nudge — just a small hint to point me in the right direction." },
-  { label: "Guided", icon: MessageSquare, hintLevel: "guided", message: "I'd like a guided hint — help me narrow down the approach." },
-  { label: "Structural", icon: Sparkles, hintLevel: "structural", message: "Give me a structural hint — I need the algorithm outline and key invariants." },
-  { label: "Analyze Code", icon: Code2, hintLevel: "guided", message: "Please analyze my current code — what's wrong and how can I fix it?" },
-  { label: "Complexity", icon: Search, hintLevel: "guided", message: "What's the time and space complexity of my current approach? How can I optimize?" },
+const quickActions: {
+  label: string;
+  icon: typeof Lightbulb;
+  hintLevel: TutorHintLevel;
+  message: string;
+}[] = [
+  {
+    label: "Nudge",
+    icon: Lightbulb,
+    hintLevel: "nudge",
+    message:
+      "Give me a nudge — just a small hint to point me in the right direction.",
+  },
+  {
+    label: "Guided",
+    icon: MessageSquare,
+    hintLevel: "guided",
+    message: "I'd like a guided hint — help me narrow down the approach.",
+  },
+  {
+    label: "Structural",
+    icon: Sparkles,
+    hintLevel: "structural",
+    message:
+      "Give me a structural hint — I need the algorithm outline and key invariants.",
+  },
+  {
+    label: "Analyze Code",
+    icon: Code2,
+    hintLevel: "guided",
+    message:
+      "Please analyze my current code — what's wrong and how can I fix it?",
+  },
+  {
+    label: "Complexity",
+    icon: Search,
+    hintLevel: "guided",
+    message:
+      "What's the time and space complexity of my current approach? How can I optimize?",
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -67,7 +106,10 @@ function renderMarkdown(text: string): React.ReactNode[] {
       } else {
         inCodeBlock = false;
         nodes.push(
-          <div key={`code-${blockIndex++}`} className="tutor-code-block my-2 overflow-x-auto rounded-lg border border-border/50 bg-[hsl(var(--background))] p-3">
+          <div
+            key={`code-${blockIndex++}`}
+            className="tutor-code-block my-2 overflow-x-auto rounded-lg border border-border/50 bg-[hsl(var(--background))] p-3"
+          >
             {codeLanguage && (
               <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
                 {codeLanguage}
@@ -109,7 +151,8 @@ function getLineClass(line: string): string {
   if (trimmed.startsWith("# ")) return "text-base font-bold mt-2 mb-1";
   if (trimmed.startsWith("## ")) return "text-sm font-bold mt-2 mb-1";
   if (trimmed.startsWith("### ")) return "text-sm font-semibold mt-1.5 mb-0.5";
-  if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) return "ml-3 text-sm leading-relaxed before:content-['•'] before:mr-1.5 before:text-primary/60";
+  if (trimmed.startsWith("- ") || trimmed.startsWith("* "))
+    return "ml-3 text-sm leading-relaxed before:content-['•'] before:mr-1.5 before:text-primary/60";
   if (/^\d+\.\s/.test(trimmed)) return "ml-3 text-sm leading-relaxed";
   return "text-sm leading-relaxed";
 }
@@ -117,9 +160,12 @@ function getLineClass(line: string): string {
 function renderInline(text: string): React.ReactNode[] {
   // Strip heading markers
   let cleaned = text;
-  if (cleaned.trim().startsWith("### ")) cleaned = cleaned.replace(/^###\s+/, "");
-  else if (cleaned.trim().startsWith("## ")) cleaned = cleaned.replace(/^##\s+/, "");
-  else if (cleaned.trim().startsWith("# ")) cleaned = cleaned.replace(/^#\s+/, "");
+  if (cleaned.trim().startsWith("### "))
+    cleaned = cleaned.replace(/^###\s+/, "");
+  else if (cleaned.trim().startsWith("## "))
+    cleaned = cleaned.replace(/^##\s+/, "");
+  else if (cleaned.trim().startsWith("# "))
+    cleaned = cleaned.replace(/^#\s+/, "");
 
   // Split by bold and inline code
   const parts: React.ReactNode[] = [];
@@ -134,13 +180,19 @@ function renderInline(text: string): React.ReactNode[] {
     const token = match[0];
     if (token.startsWith("**") && token.endsWith("**")) {
       parts.push(
-        <strong key={`b-${match.index}`} className="font-semibold text-foreground">
+        <strong
+          key={`b-${match.index}`}
+          className="font-semibold text-foreground"
+        >
           {token.slice(2, -2)}
         </strong>,
       );
     } else if (token.startsWith("`") && token.endsWith("`")) {
       parts.push(
-        <code key={`c-${match.index}`} className="rounded bg-muted/60 px-1.5 py-0.5 text-xs font-mono text-primary">
+        <code
+          key={`c-${match.index}`}
+          className="rounded bg-muted/60 px-1.5 py-0.5 text-xs font-mono text-primary"
+        >
           {token.slice(1, -1)}
         </code>,
       );
@@ -159,11 +211,18 @@ function renderInline(text: string): React.ReactNode[] {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export function DSATutor({ problem, code, language, weakness, hintCount }: DSATutorProps) {
+export function DSATutor({
+  problem,
+  code,
+  language,
+  weakness,
+  hintCount,
+}: DSATutorProps) {
   const [messages, setMessages] = useState<TutorMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [currentHintLevel, setCurrentHintLevel] = useState<TutorHintLevel>("nudge");
+  const [currentHintLevel, setCurrentHintLevel] =
+    useState<TutorHintLevel>("nudge");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
@@ -173,7 +232,10 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
   /* — Scroll to bottom — */
   const scrollToBottom = useCallback(() => {
     if (chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }, []);
 
@@ -207,7 +269,11 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
 
   /* — Send a message to the tutor API — */
   const sendMessage = useCallback(
-    async (messageText: string, hintLevel: TutorHintLevel, includeCode = false) => {
+    async (
+      messageText: string,
+      hintLevel: TutorHintLevel,
+      includeCode = false,
+    ) => {
       if (!messageText.trim() || loading) return;
 
       const userMsg: TutorMessage = {
@@ -239,7 +305,10 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
           }),
         });
 
-        const data = (await response.json()) as { reply: string; source: string };
+        const data = (await response.json()) as {
+          reply: string;
+          source: string;
+        };
 
         const tutorMsg: TutorMessage = {
           id: crypto.randomUUID(),
@@ -253,7 +322,8 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
         const errorMsg: TutorMessage = {
           id: crypto.randomUUID(),
           role: "tutor",
-          content: "Sorry, I had trouble connecting. Please try again in a moment! 🔧",
+          content:
+            "Sorry, I had trouble connecting. Please try again in a moment! 🔧",
           timestamp: Date.now(),
         };
         setMessages((prev) => [...prev, errorMsg]);
@@ -274,12 +344,21 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
       if (lower.includes("nudge")) detectedLevel = "nudge";
       else if (lower.includes("guided")) detectedLevel = "guided";
       else if (lower.includes("structural")) detectedLevel = "structural";
-      else if (lower.includes("skeleton") || lower.includes("pseudocode")) detectedLevel = "skeleton";
-      else if (lower.includes("full solution") || lower.includes("complete solution")) detectedLevel = "full_solution";
+      else if (lower.includes("skeleton") || lower.includes("pseudocode"))
+        detectedLevel = "skeleton";
+      else if (
+        lower.includes("full solution") ||
+        lower.includes("complete solution")
+      )
+        detectedLevel = "full_solution";
 
       // Auto-include code if asking for analysis
-      const includeCode = lower.includes("analyze") || lower.includes("review") ||
-        lower.includes("check my") || lower.includes("debug") || lower.includes("what's wrong") ||
+      const includeCode =
+        lower.includes("analyze") ||
+        lower.includes("review") ||
+        lower.includes("check my") ||
+        lower.includes("debug") ||
+        lower.includes("what's wrong") ||
         lower.includes("code");
 
       sendMessage(input, detectedLevel, includeCode);
@@ -290,7 +369,8 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
   const handleQuickAction = useCallback(
     (action: (typeof quickActions)[number]) => {
       setCurrentHintLevel(action.hintLevel);
-      const includeCode = action.label === "Analyze Code" || action.label === "Complexity";
+      const includeCode =
+        action.label === "Analyze Code" || action.label === "Complexity";
       sendMessage(action.message, action.hintLevel, includeCode);
     },
     [sendMessage],
@@ -318,13 +398,17 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
           </div>
           <div>
             <h3 className="text-sm font-semibold">DSA Guide Tutor</h3>
-            <p className="text-[10px] text-muted-foreground">Socratic • Scaffolded • Never spoon-feeds</p>
+            <p className="text-[10px] text-muted-foreground">
+              Socratic • Scaffolded • Never spoon-feeds
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
           <select
             value={currentHintLevel}
-            onChange={(e) => setCurrentHintLevel(e.target.value as TutorHintLevel)}
+            onChange={(e) =>
+              setCurrentHintLevel(e.target.value as TutorHintLevel)
+            }
             className="h-7 rounded-md border border-border/60 bg-background px-2 text-[11px] font-medium outline-none ring-primary/30 focus:ring-2"
             title="Default hint level"
           >
@@ -352,29 +436,43 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
         className="flex-1 space-y-3 overflow-y-auto px-3 py-3 scroll-smooth"
       >
         {messages.map((msg) => (
-          <div key={msg.id} className={`tutor-message-wrapper ${msg.role === "user" ? "flex justify-end" : msg.role === "system" ? "flex justify-center" : "flex justify-start"}`}>
+          <div
+            key={msg.id}
+            className={`tutor-message-wrapper ${msg.role === "user" ? "flex justify-end" : msg.role === "system" ? "flex justify-center" : "flex justify-start"}`}
+          >
             {msg.role === "tutor" && (
               <div className="tutor-bubble-tutor relative max-w-[92%] rounded-2xl rounded-tl-sm border border-border/40 bg-card/80 px-4 py-3 shadow-sm">
                 <div className="mb-1.5 flex items-center gap-1.5">
                   <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15">
                     <Sparkles className="h-3 w-3 text-primary" />
                   </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary/70">Tutor</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary/70">
+                    Tutor
+                  </span>
                 </div>
-                <div className="tutor-content">{renderMarkdown(msg.content)}</div>
+                <div className="tutor-content">
+                  {renderMarkdown(msg.content)}
+                </div>
               </div>
             )}
             {msg.role === "user" && (
               <div className="tutor-bubble-user relative max-w-[85%] rounded-2xl rounded-tr-sm border border-primary/20 bg-primary/10 px-4 py-3">
                 <div className="mb-1 flex items-center justify-end gap-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary/70">You</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary/70">
+                    You
+                  </span>
                 </div>
                 <p className="text-sm leading-relaxed">{msg.content}</p>
                 {msg.codeSnapshot && (
                   <div className="mt-2 rounded-lg border border-border/30 bg-background/60 p-2">
-                    <p className="mb-1 text-[10px] font-medium text-muted-foreground">📎 Code attached</p>
+                    <p className="mb-1 text-[10px] font-medium text-muted-foreground">
+                      📎 Code attached
+                    </p>
                     <pre className="max-h-24 overflow-auto text-xs">
-                      <code>{msg.codeSnapshot.slice(0, 500)}{msg.codeSnapshot.length > 500 ? "\n..." : ""}</code>
+                      <code>
+                        {msg.codeSnapshot.slice(0, 500)}
+                        {msg.codeSnapshot.length > 500 ? "\n..." : ""}
+                      </code>
                     </pre>
                   </div>
                 )}
@@ -385,7 +483,9 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
                 <p className="text-xs text-muted-foreground">{msg.content}</p>
                 {msg.codeSnapshot && (
                   <details className="mt-1.5">
-                    <summary className="cursor-pointer text-[11px] font-medium text-primary/70 hover:text-primary">View code snapshot</summary>
+                    <summary className="cursor-pointer text-[11px] font-medium text-primary/70 hover:text-primary">
+                      View code snapshot
+                    </summary>
                     <pre className="mt-1.5 max-h-32 overflow-auto rounded-lg border border-border/30 bg-background p-2 text-xs">
                       <code>{msg.codeSnapshot}</code>
                     </pre>
@@ -406,8 +506,14 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
                 </div>
                 <div className="tutor-typing flex items-center gap-1">
                   <span className="tutor-dot" />
-                  <span className="tutor-dot" style={{ animationDelay: "0.15s" }} />
-                  <span className="tutor-dot" style={{ animationDelay: "0.3s" }} />
+                  <span
+                    className="tutor-dot"
+                    style={{ animationDelay: "0.15s" }}
+                  />
+                  <span
+                    className="tutor-dot"
+                    style={{ animationDelay: "0.3s" }}
+                  />
                 </div>
               </div>
             </div>
@@ -459,7 +565,9 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
                 handleSubmit();
               }
             }}
-            placeholder={"Ask about your approach, say \"nudge\", or describe where you're stuck..."}
+            placeholder={
+              'Ask about your approach, say "nudge", or describe where you\'re stuck...'
+            }
             className="h-10 w-full rounded-xl border border-border/60 bg-background px-4 text-sm outline-none ring-primary/30 transition-shadow placeholder:text-muted-foreground/50 focus:ring-2"
             disabled={loading}
           />
@@ -477,7 +585,8 @@ export function DSATutor({ problem, code, language, weakness, hintCount }: DSATu
           </Button>
         </div>
         <p className="mt-1.5 text-center text-[10px] text-muted-foreground/50">
-          Tip: Use quick action chips above, or type freely. Say &quot;nudge&quot; or &quot;guided&quot; to set hint level.
+          Tip: Use quick action chips above, or type freely. Say
+          &quot;nudge&quot; or &quot;guided&quot; to set hint level.
         </p>
       </div>
     </div>

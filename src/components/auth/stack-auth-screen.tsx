@@ -135,11 +135,11 @@ export function StackAuthScreen({
         mode === "sign-in"
           ? await stackClientApp.signInWithCredential({ email, password, noRedirect: true })
           : await stackClientApp.signUpWithCredential({
-              email,
-              password,
-              noRedirect: true,
-              verificationCallbackUrl: `${window.location.origin}/verify-email`,
-            });
+            email,
+            password,
+            noRedirect: true,
+            verificationCallbackUrl: `${window.location.origin}/verify-email`,
+          });
 
       if (result.status !== "ok") {
         setError(result.error?.message || "Authentication failed. Please check your credentials.");
