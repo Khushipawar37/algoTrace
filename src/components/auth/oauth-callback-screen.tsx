@@ -12,7 +12,7 @@ export function OauthCallbackScreen() {
 
     async function waitForUser() {
       if (!stackClientApp) return null;
-      for (let attempt = 0; attempt < 8; attempt += 1) {
+      for (let attempt = 0; attempt < 10; attempt += 1) {
         const user = await stackClientApp.getUser({ includeRestricted: true });
         if (user) return user;
         await new Promise((resolve) => setTimeout(resolve, 250));
@@ -25,32 +25,35 @@ export function OauthCallbackScreen() {
         if (active) setError("Auth not configured.");
         return;
       }
+
       try {
-        const ok = await stackClientApp.callOAuthCallback();
+        await stackClientApp.callOAuthCallback();
         if (!active) return;
-        if (!ok) {
-          setError("OAuth callback failed. Please sign in again.");
-          return;
-        }
 
         const user = await waitForUser();
         if (!active) return;
+
         if (!user) {
-          setError("We could not establish your session yet. Redirecting to sign in...");
-          setTimeout(() => window.location.assign("/sign-in?returnTo=/dashboard"), 900);
+          setError("We could not establish your session. Redirecting to sign in...");
+          setTimeout(() => window.location.assign("/sign-in?returnTo=/dashboard"), 1000);
           return;
         }
+
         if (user.isRestricted) {
           window.location.assign(
             user.primaryEmail ? `/verify-email?email=${encodeURIComponent(user.primaryEmail)}` : "/verify-email",
           );
-        } else {
-          window.location.assign("/dashboard");
+          return;
         }
+
+        window.location.assign("/dashboard");
       } catch {
-        if (active) setError("OAuth callback failed. Please sign in again.");
+        if (!active) return;
+        setError("OAuth callback failed. Redirecting to sign in...");
+        setTimeout(() => window.location.assign("/sign-in?returnTo=/dashboard"), 1000);
       }
     }
+
     void run();
     return () => {
       active = false;

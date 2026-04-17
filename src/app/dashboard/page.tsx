@@ -1,18 +1,15 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { ArrowLeft, Flame, Goal, TrendingDown, Zap } from "lucide-react";
 
-import { AccountActions } from "@/components/auth/account-actions";
+import { OauthCallbackScreen } from "@/components/auth/oauth-callback-screen";
 import { ProfileEditor } from "@/components/auth/profile-editor";
 import { ProgressChart } from "@/components/dashboard/progress-chart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { stackClientApp } from "@/stack";
+import { isStackServerConfigured, stackServerApp } from "@/stack";
 
 const kpis = [
   { icon: TrendingDown, label: "Optimization weakness", value: "78 -> 49", detail: "-29 in 5 sessions" },
@@ -21,111 +18,50 @@ const kpis = [
   { icon: Flame, label: "Practice streak", value: "12 days", detail: "Best streak so far" },
 ];
 
-type DashboardUser = {
-  id: string;
-  displayName: string | null;
-  primaryEmail: string | null;
-  primaryEmailVerified: boolean;
-  isRestricted: boolean;
-  signedUpAt: Date | string;
-};
+function buildSignInRedirectUrl(searchParams: Record<string, string | string[] | undefined>) {
+  const query = new URLSearchParams();
+  query.set("returnTo", "/dashboard");
+  const keys = ["error", "error_description", "errorCode", "details", "email"];
+  for (const key of keys) {
+    const value = searchParams[key];
+    if (typeof value === "string" && value) query.set(key, value);
+  }
+  return `/sign-in?${query.toString()}`;
+}
 
-export default function DashboardPage() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<DashboardUser | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadUserWithRetry() {
-      if (!stackClientApp) {
-        if (active) {
-          setError("StackAuth is not configured.");
-          setLoading(false);
-        }
-        return;
-      }
-
-      try {
-        for (let attempt = 0; attempt < 8; attempt += 1) {
-          const currentUser = await stackClientApp.getUser({ includeRestricted: true });
-          if (currentUser) {
-            if (!active) return;
-            if (currentUser.isRestricted) {
-              const email = currentUser.primaryEmail;
-              router.replace(email ? `/verify-email?email=${encodeURIComponent(email)}` : "/verify-email");
-              return;
-            }
-            setUser({
-              id: currentUser.id,
-              displayName: currentUser.displayName,
-              primaryEmail: currentUser.primaryEmail,
-              primaryEmailVerified: currentUser.primaryEmailVerified,
-              isRestricted: currentUser.isRestricted,
-              signedUpAt: currentUser.signedUpAt,
-            });
-            setLoading(false);
-            return;
-          }
-          await new Promise((resolve) => setTimeout(resolve, 250));
-        }
-
-        if (active) {
-          router.replace("/sign-in?returnTo=/dashboard");
-        }
-      } catch {
-        if (active) {
-          setError("Unable to load your session right now.");
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadUserWithRetry();
-    return () => {
-      active = false;
-    };
-  }, [router]);
-
-  const profile = useMemo(() => {
-    if (!user) return null;
-    return {
-      id: user.id,
-      name: user.displayName ?? "No display name",
-      email: user.primaryEmail ?? "No email",
-      emailVerified: user.primaryEmailVerified ? "Verified" : "Not Verified",
-      restricted: user.isRestricted ? "Yes" : "No",
-      joined: new Date(user.signedUpAt).toLocaleDateString(),
-      displayNameRaw: user.displayName ?? "",
-    };
-  }, [user]);
-
-  if (loading) {
-    return (
-      <main className="mx-auto flex min-h-[70vh] w-full max-w-3xl items-center justify-center px-6">
-        <div className="w-full space-y-2 rounded-xl border border-border/60 bg-card p-6 text-center">
-          <h1 className="font-[var(--font-sora)] text-2xl font-bold">Loading Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Checking your authenticated session...</p>
-        </div>
-      </main>
-    );
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const code = params.code;
+  const state = params.state;
+  if (typeof code === "string" && typeof state === "string") {
+    return <OauthCallbackScreen />;
   }
 
-  if (error || !profile) {
-    return (
-      <main className="mx-auto flex min-h-[70vh] w-full max-w-3xl items-center justify-center px-6">
-        <div className="w-full space-y-3 rounded-xl border border-border/60 bg-card p-6 text-center">
-          <h1 className="font-[var(--font-sora)] text-2xl font-bold">Dashboard Unavailable</h1>
-          <p className="text-sm text-muted-foreground">{error ?? "Please sign in again."}</p>
-          <Button asChild>
-            <Link href="/sign-in?returnTo=/dashboard">Go to Sign In</Link>
-          </Button>
-        </div>
-      </main>
-    );
+  if (!isStackServerConfigured || !stackServerApp) {
+    redirect((buildSignInRedirectUrl(params) as unknown) as "/sign-in");
   }
+
+  const user = await stackServerApp.getUser({ includeRestricted: true });
+  if (!user) {
+    redirect((buildSignInRedirectUrl(params) as unknown) as "/sign-in");
+  }
+
+  if (user.isRestricted) {
+    redirect(user.primaryEmail ? `/verify-email?email=${encodeURIComponent(user.primaryEmail)}` : "/verify-email");
+  }
+
+  const profile = {
+    id: user.id,
+    name: user.displayName ?? "No display name",
+    email: user.primaryEmail ?? "No email",
+    emailVerified: user.primaryEmailVerified ? "Verified" : "Not Verified",
+    joined: user.signedUpAt.toLocaleDateString(),
+    displayNameRaw: user.displayName ?? "",
+  };
 
   return (
     <main className="mx-auto w-full max-w-7xl space-y-4 px-4 py-6 md:px-6">
@@ -150,7 +86,7 @@ export default function DashboardPage() {
       <Card id="profile">
         <CardHeader>
           <CardTitle>Profile</CardTitle>
-          <CardDescription>Current account and access details</CardDescription>
+          <CardDescription>Basic account details</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid gap-2 text-sm md:grid-cols-2">
@@ -167,20 +103,15 @@ export default function DashboardPage() {
               <span className="font-medium">{profile.emailVerified}</span>
             </p>
             <p>
-              <span className="text-muted-foreground">Restricted: </span>
-              <span className="font-medium">{profile.restricted}</span>
+              <span className="text-muted-foreground">Joined: </span>
+              <span className="font-medium">{profile.joined}</span>
             </p>
             <p>
               <span className="text-muted-foreground">User ID: </span>
               <span className="font-mono text-xs">{profile.id}</span>
             </p>
-            <p>
-              <span className="text-muted-foreground">Joined: </span>
-              <span className="font-medium">{profile.joined}</span>
-            </p>
           </div>
           <ProfileEditor initialDisplayName={profile.displayNameRaw} />
-          <AccountActions />
         </CardContent>
       </Card>
 
@@ -210,34 +141,6 @@ export default function DashboardPage() {
           <ProgressChart />
         </CardContent>
       </Card>
-
-      <section className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Priority Area</CardTitle>
-            <CardDescription>Most impactful area to reduce this week</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>
-              <span className="font-semibold text-foreground">Edge Case Detection</span> is still your highest risk
-              signal.
-            </p>
-            <p>Action: Before coding each problem, write 3 edge cases in comments and validate them first.</p>
-            <p>Recommended next problem: Valid Parentheses (focus on empty string and one-char input).</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Session Plan</CardTitle>
-            <CardDescription>Next 3 sessions</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Session 1: Two Sum Variants (Approach + DS selection)</p>
-            <p>Session 2: Sliding Window Medium (Optimization timing)</p>
-            <p>Session 3: Stack Validation (Edge cases + logic checks)</p>
-          </CardContent>
-        </Card>
-      </section>
     </main>
   );
 }

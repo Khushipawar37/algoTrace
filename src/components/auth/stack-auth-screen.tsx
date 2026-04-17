@@ -2,33 +2,53 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { stackClientApp } from "@/stack";
 
-export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up"; returnTo?: string }) {
-  const [email, setEmail] = useState("");
+type StackAuthScreenProps = {
+  mode: "sign-in" | "sign-up";
+  returnTo?: string;
+  initialError?: string;
+  initialEmail?: string;
+  autoResolveGoogleConflict?: boolean;
+};
+
+export function StackAuthScreen({
+  mode,
+  returnTo,
+  initialError,
+  initialEmail,
+  autoResolveGoogleConflict = false,
+}: StackAuthScreenProps) {
+  const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError ?? null);
   const [info, setInfo] = useState<string | null>(null);
   const [checkingSession, setCheckingSession] = useState(mode === "sign-in");
   const router = useRouter();
-
   const targetRoute = returnTo === "/" ? "/" : "/dashboard";
+
+  const autoResolveKey = useMemo(
+    () => `algotrace-google-conflict-resolved:${(initialEmail ?? "").toLowerCase()}`,
+    [initialEmail],
+  );
 
   useEffect(() => {
     let active = true;
+
     async function checkExistingSession() {
-      if (!stackClientApp || mode !== "sign-in") return;
+      if (!stackClientApp || mode !== "sign-in") {
+        if (active) setCheckingSession(false);
+        return;
+      }
       try {
         const user = await stackClientApp.getUser({ includeRestricted: true });
         if (!active || !user) return;
         if (user.isRestricted) {
-          router.replace(
-            user.primaryEmail ? `/verify-email?email=${encodeURIComponent(user.primaryEmail)}` : "/verify-email",
-          );
+          router.replace(user.primaryEmail ? `/verify-email?email=${encodeURIComponent(user.primaryEmail)}` : "/verify-email");
           return;
         }
         router.replace(targetRoute);
@@ -36,19 +56,76 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
         if (active) setCheckingSession(false);
       }
     }
+
     void checkExistingSession();
     return () => {
       active = false;
     };
   }, [mode, router, targetRoute]);
 
+  useEffect(() => {
+    let active = true;
+
+    async function autoResolveConflictAndContinueGoogle() {
+      if (!stackClientApp || mode !== "sign-in" || !autoResolveGoogleConflict || !initialEmail) return;
+      if (typeof window === "undefined") return;
+      if (sessionStorage.getItem(autoResolveKey) === "1") return;
+
+      sessionStorage.setItem(autoResolveKey, "1");
+      setSubmitting(true);
+      setError(null);
+      setInfo("Resolving account conflict and continuing with Google...");
+
+      try {
+        const response = await fetch("/api/auth/resolve-google-conflict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: initialEmail }),
+        });
+
+        if (!response.ok) {
+          const body = (await response.json().catch(() => ({}))) as { error?: string };
+          throw new Error(body.error ?? "Unable to resolve Google sign-in conflict.");
+        }
+
+        if (!active) return;
+        await stackClientApp.signInWithOAuth("google");
+      } catch (e) {
+        if (!active) return;
+        const message = e instanceof Error ? e.message : "Unable to continue with Google right now.";
+        setError(message);
+        setSubmitting(false);
+      }
+    }
+
+    void autoResolveConflictAndContinueGoogle();
+    return () => {
+      active = false;
+    };
+  }, [autoResolveGoogleConflict, autoResolveKey, initialEmail, mode, targetRoute]);
+
+  async function onGoogle() {
+    if (!stackClientApp) return;
+    setSubmitting(true);
+    setError(null);
+    setInfo(null);
+    try {
+      await stackClientApp.signInWithOAuth("google");
+    } catch {
+      setError("Google sign-in failed. Please try again.");
+      setSubmitting(false);
+    }
+  }
+
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!stackClientApp) return;
+
     if (mode === "sign-up" && password !== confirmPassword) {
       setError("Password and confirm password do not match.");
       return;
     }
+
     setSubmitting(true);
     setError(null);
     setInfo(null);
@@ -64,20 +141,21 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
               verificationCallbackUrl: `${window.location.origin}/verify-email`,
             });
 
-      if (result.status === "ok") {
-        if (mode === "sign-up") {
-          setInfo("Verification email sent. Please verify your email before signing in.");
-          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-        } else {
-          router.push(targetRoute);
-          router.refresh();
-        }
+      if (result.status !== "ok") {
+        setError(result.error?.message || "Authentication failed. Please check your credentials.");
+        setSubmitting(false);
+        return;
+      }
+
+      if (mode === "sign-up") {
+        setInfo("Verification email sent. Verify your email, then sign in.");
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
       } else {
-        setError(result.error?.message || "Authentication failed. Please check credentials and try again.");
+        router.push(targetRoute);
+        router.refresh();
       }
     } catch {
       setError("Something went wrong while contacting auth service.");
-    } finally {
       setSubmitting(false);
     }
   }
@@ -110,19 +188,6 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
     );
   }
 
-  async function onGoogle() {
-    if (!stackClientApp) return;
-    setSubmitting(true);
-    setError(null);
-    setInfo(null);
-    try {
-      await stackClientApp.signInWithOAuth("google", { returnTo: targetRoute });
-    } catch {
-      setError("Google sign-in failed. Ensure Google OAuth is configured in StackAuth dashboard.");
-      setSubmitting(false);
-    }
-  }
-
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-6">
       <form onSubmit={onSubmit} className="w-full space-y-4 rounded-xl border border-border/60 bg-card p-6">
@@ -130,13 +195,13 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
           {mode === "sign-in" ? "Sign In to AlgoTrace" : "Create your AlgoTrace account"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {mode === "sign-in" ? "Welcome back. Continue your learning journey." : "Start tracking your coding behavior today."}
+          {mode === "sign-in" ? "Welcome back. Continue your learning journey." : "Sign up with email, verify, then sign in."}
         </p>
 
         <button
           type="button"
-          disabled={submitting}
           onClick={onGoogle}
+          disabled={submitting}
           className="flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-background text-sm font-medium hover:bg-muted disabled:opacity-70"
         >
           <span>G</span>
@@ -213,11 +278,6 @@ export function StackAuthScreen({ mode, returnTo }: { mode: "sign-in" | "sign-up
             {mode === "sign-in" ? "Create account" : "Sign in"}
           </Link>
         </p>
-        {mode === "sign-up" && (
-          <p className="text-xs text-muted-foreground">
-            Email/password sign-up requires verification before access. A verification code/link is sent to your email.
-          </p>
-        )}
       </form>
     </main>
   );
