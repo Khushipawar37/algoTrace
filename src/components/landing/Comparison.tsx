@@ -58,7 +58,7 @@ const COMPARISON_ROWS: ComparisonRow[] = [
 
 export function Comparison() {
   return (
-    <section className="relative bg-smoky text-floral py-28 px-6 md:px-12 border-t border-olive/30">
+    <section className="relative bg-smoky text-floral py-28 px-6 md:px-12 border-t border-bone/20">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="max-w-4xl mb-20">
@@ -78,10 +78,10 @@ export function Comparison() {
         </div>
 
         {/* Minimal Editorial Comparison Table */}
-        <div className="overflow-x-auto rounded-[28px] border border-olive/30 bg-[#171812] shadow-2xl">
+        <div className="overflow-x-auto rounded-[28px] border border-bone/30 bg-[#171812] shadow-2xl">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
-              <tr className="border-b border-olive/30 font-mono text-xs text-olive uppercase tracking-wider">
+              <tr className="border-b border-bone/20 font-mono text-xs text-bone/80 uppercase tracking-wider">
                 <th className="py-6 px-8 font-normal">CAPABILITY</th>
                 <th className="py-6 px-4 font-normal text-center">VIDEOS</th>
                 <th className="py-6 px-4 font-normal text-center">STATIC HINTS</th>
@@ -91,9 +91,9 @@ export function Comparison() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-olive/20 font-sans text-sm">
+            <tbody className="divide-y divide-bone/20 font-sans text-sm">
               {COMPARISON_ROWS.map((row, idx) => (
-                <tr key={idx} className="hover:bg-olive/10 transition-colors">
+                <tr key={idx} className="hover:bg-bone/5 transition-colors">
                   <td className="py-5 px-8 font-medium text-floral">
                     {row.feature}
                   </td>
@@ -103,7 +103,7 @@ export function Comparison() {
                     {row.videos ? (
                       <Check className="w-4 h-4 mx-auto text-bone" />
                     ) : (
-                      <Minus className="w-4 h-4 mx-auto text-olive/40" />
+                      <Minus className="w-4 h-4 mx-auto text-bone/30" />
                     )}
                   </td>
 
@@ -112,7 +112,7 @@ export function Comparison() {
                     {row.staticHints ? (
                       <Check className="w-4 h-4 mx-auto text-bone" />
                     ) : (
-                      <Minus className="w-4 h-4 mx-auto text-olive/40" />
+                      <Minus className="w-4 h-4 mx-auto text-bone/30" />
                     )}
                   </td>
 
@@ -121,7 +121,7 @@ export function Comparison() {
                     {row.generalAI ? (
                       <Check className="w-4 h-4 mx-auto text-bone" />
                     ) : (
-                      <Minus className="w-4 h-4 mx-auto text-olive/40" />
+                      <Minus className="w-4 h-4 mx-auto text-bone/30" />
                     )}
                   </td>
 

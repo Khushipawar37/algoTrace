@@ -20,6 +20,14 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -30,12 +38,13 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         {/* Left: Typographic Logo with Trace Motif */}
-        <Link
-          href="/"
-          className="group flex items-center gap-2 text-xl font-bold tracking-tight text-smoky hover:opacity-90 transition-opacity"
+        <a
+          href="#"
+          onClick={handleLogoClick}
+          className="group flex items-center gap-2 text-xl font-bold tracking-tight text-smoky hover:opacity-90 transition-opacity cursor-pointer"
         >
           <span className="font-sans font-extrabold text-2xl tracking-tighter">
-            algo<span className="font-serif italic font-normal text-3xl">T</span>race
+            Algo<span className="font-serif italic font-normal text-3xl">T</span>race
           </span>
           {/* Subtle trace motif */}
           <span className="inline-flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
@@ -43,15 +52,15 @@ export function Navbar() {
             <span className="w-3 h-[1px] bg-smoky" />
             <span className="w-2 h-2 rounded-full bg-smoky" />
           </span>
-        </Link>
+        </a>
 
         {/* Center: Nav links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-olive">
           <a
-            href="#product"
+            href="#about"
             className="hover:text-smoky transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[1px] after:bg-smoky after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
           >
-            Product
+            About
           </a>
           <a
             href="#how-it-works"
@@ -70,12 +79,6 @@ export function Navbar() {
             className="hover:text-smoky transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[1px] after:bg-smoky after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
           >
             Learning Paths
-          </a>
-          <a
-            href="#about"
-            className="hover:text-smoky transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[1px] after:bg-smoky after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
-          >
-            About
           </a>
         </nav>
 

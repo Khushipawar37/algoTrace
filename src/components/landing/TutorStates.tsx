@@ -118,7 +118,7 @@ export function TutorStates() {
           </div>
 
           {/* Right Preview Canvas (8 Cols) */}
-          <div className="lg:col-span-8 rounded-[24px] border border-smoky/20 bg-smoky text-floral p-8 md:p-10 flex flex-col justify-between shadow-2xl relative overflow-hidden min-h-[440px]">
+          <div className="lg:col-span-8 rounded-[24px] border border-bone/30 bg-smoky text-floral p-8 md:p-10 flex flex-col justify-between shadow-2xl relative overflow-hidden min-h-[440px]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentState.id}
@@ -129,19 +129,19 @@ export function TutorStates() {
                 className="space-y-8"
               >
                 {/* State Context Header */}
-                <div className="flex items-center justify-between border-b border-olive/30 pb-4">
+                <div className="flex items-center justify-between border-b border-bone/20 pb-4">
                   <div className="flex items-center gap-3">
                     <span className="w-2 h-2 rounded-full bg-bone animate-pulse" />
                     <span className="font-mono text-xs text-bone uppercase tracking-widest">
                       STATE {currentState.number} • {currentState.title}
                     </span>
                   </div>
-                  <span className="font-mono text-xs text-olive">REAL-TIME INFERENCE</span>
+                  <span className="font-mono text-xs text-bone/80">REAL-TIME INFERENCE</span>
                 </div>
 
                 {/* Editor Context Snippet */}
-                <div className="p-5 rounded-btn bg-[#171812] border border-olive/30 font-mono text-sm leading-relaxed text-bone/90 overflow-x-auto">
-                  <span className="text-xs text-olive block mb-2 font-sans uppercase">
+                <div className="p-5 rounded-btn bg-[#171812] border border-bone/30 font-mono text-sm leading-relaxed text-bone/95 overflow-x-auto">
+                  <span className="text-xs text-bone/80 block mb-2 font-sans uppercase">
                     STUDENT WORKSPACE / DIAGNOSTIC SIGNAL:
                   </span>
                   <pre className="whitespace-pre">{currentState.editorContext}</pre>
@@ -149,7 +149,7 @@ export function TutorStates() {
 
                 {/* Tutor Response */}
                 <div className="pt-2">
-                  <span className="font-mono text-xs text-bone/70 uppercase tracking-wider block mb-2">
+                  <span className="font-mono text-xs text-bone/80 uppercase tracking-wider block mb-2">
                     ALGOTRACE SOCRATIC RESPONSE:
                   </span>
                   <h3 className="text-2xl md:text-3xl font-serif italic text-floral leading-snug">
@@ -160,9 +160,9 @@ export function TutorStates() {
             </AnimatePresence>
 
             {/* Bottom Detail */}
-            <div className="pt-6 border-t border-olive/30 mt-8 flex items-center justify-between text-xs font-mono text-bone">
+            <div className="pt-6 border-t border-bone/20 mt-8 flex items-center justify-between text-xs font-mono text-bone/90">
               <span>{currentState.detail}</span>
-              <span className="text-olive">NO SOLUTION LEAKED</span>
+              <span className="text-bone/80">NO SOLUTION LEAKED</span>
             </div>
           </div>
         </div>

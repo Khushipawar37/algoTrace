@@ -15,6 +15,7 @@ import { ProgressMetric } from "@/components/landing/ProgressMetric";
 import { Comparison } from "@/components/landing/Comparison";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
+import { ScrollToTop } from "@/components/landing/ScrollToTop";
 
 export default function HomePage() {
   return (
@@ -64,6 +65,9 @@ export default function HomePage() {
 
       {/* Section 20: Footer */}
       <Footer />
+
+      {/* Scroll to top floating arrow button */}
+      <ScrollToTop />
     </div>
   );
 }

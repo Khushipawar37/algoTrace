@@ -27,7 +27,7 @@ export function LearningLoop() {
   const [activeAlgoIndex, setActiveAlgoIndex] = useState(4);
 
   return (
-    <section id="how-it-works" className="relative bg-smoky text-floral py-28 px-6 md:px-12 border-t border-olive/30">
+    <section id="how-it-works" className="relative bg-smoky text-floral py-28 px-6 md:px-12 border-t border-bone/20">
       <div className="max-w-7xl mx-auto">
         {/* Editorial Heading */}
         <div className="max-w-4xl mb-20">
@@ -38,21 +38,21 @@ export function LearningLoop() {
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] text-floral mb-6">
             Understanding someone else&apos;s solution isn&apos;t the same as learning to solve.
           </h2>
-          <p className="text-lg text-bone/70 max-w-2xl font-normal leading-relaxed">
+          <p className="text-lg text-bone/80 max-w-2xl font-normal leading-relaxed">
             Most platforms push students toward immediate code reveals. This bypasses the critical mental friction where actual algorithmic intuition is forged.
           </p>
         </div>
 
         {/* Part 1: The Broken Traditional Loop */}
-        <div className="mb-20 p-8 md:p-12 rounded-[24px] border border-olive/30 bg-[#171812] relative overflow-hidden">
-          <div className="flex items-center justify-between mb-8 pb-4 border-b border-olive/30">
+        <div className="mb-20 p-8 md:p-12 rounded-[24px] border border-bone/20 bg-[#171812] relative overflow-hidden">
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-bone/20">
             <div>
-              <span className="font-mono text-xs text-olive tracking-widest uppercase block mb-1">
+              <span className="font-mono text-xs text-bone/80 tracking-widest uppercase block mb-1">
                 TRADITIONAL PRACTICE CYCLE
               </span>
               <h3 className="text-2xl font-bold text-floral">The Passive Loop</h3>
             </div>
-            <span className="font-mono text-xs text-olive border border-olive/40 px-3 py-1 rounded-full">
+            <span className="font-mono text-xs text-bone/80 border border-bone/30 px-3 py-1 rounded-full">
               RESULT: PSEUDO-COMPREHENSION
             </span>
           </div>
@@ -67,17 +67,17 @@ export function LearningLoop() {
                   onClick={() => setActiveBrokenIndex(idx)}
                   className={`p-4 rounded-btn border transition-all duration-300 cursor-pointer flex flex-col justify-between min-h-[130px] ${
                     isActive
-                      ? "border-bone bg-bone/10 text-floral shadow-lg"
-                      : "border-olive/20 bg-smoky/60 text-olive hover:border-olive/60"
+                      ? "border-bone bg-bone/15 text-floral shadow-lg"
+                      : "border-bone/20 bg-smoky/60 text-bone/70 hover:border-bone/50 hover:text-floral"
                   }`}
                 >
                   <div className="flex items-center justify-between font-mono text-xs">
-                    <span className="opacity-50">0{idx + 1}</span>
+                    <span className="opacity-60">0{idx + 1}</span>
                     {idx < BROKEN_LOOP.length - 1 && (
-                      <ArrowRight className="w-3 h-3 text-olive" />
+                      <ArrowRight className="w-3 h-3 text-bone/60" />
                     )}
                     {idx === BROKEN_LOOP.length - 1 && (
-                      <RotateCcw className="w-3 h-3 text-olive" />
+                      <RotateCcw className="w-3 h-3 text-bone/60" />
                     )}
                   </div>
                   <div>
@@ -88,21 +88,21 @@ export function LearningLoop() {
                     >
                       {item.step}
                     </h4>
-                    <p className="text-xs text-bone/70 leading-snug">{item.desc}</p>
+                    <p className="text-xs text-bone/80 leading-snug">{item.desc}</p>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="mt-6 flex items-center justify-between text-xs font-mono text-olive pt-4 border-t border-olive/20">
+          <div className="mt-6 flex items-center justify-between text-xs font-mono text-bone/80 pt-4 border-t border-bone/20">
             <span>PASSTHROUGH MEMORIZATION</span>
             <span className="italic">&ldquo;I knew this solution on LeetCode yesterday, but I&apos;m stuck again.&rdquo;</span>
           </div>
         </div>
 
         {/* Interruption Statement */}
-        <div className="my-16 text-center max-w-3xl mx-auto py-8 border-y border-olive/30 relative">
+        <div className="my-16 text-center max-w-3xl mx-auto py-8 border-y border-bone/20 relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-12 bg-bone/10 blur-xl pointer-events-none" />
           <p className="font-mono text-xs tracking-[0.3em] text-bone uppercase mb-2">
             THE ALGOTRACE INTERVENTION
@@ -114,7 +114,7 @@ export function LearningLoop() {
 
         {/* Part 2: The AlgoTrace Loop */}
         <div className="p-8 md:p-12 rounded-[24px] border border-bone/40 bg-bone/5 relative overflow-hidden">
-          <div className="flex items-center justify-between mb-8 pb-4 border-b border-olive/30">
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-bone/30">
             <div>
               <span className="font-mono text-xs text-bone tracking-widest uppercase block mb-1">
                 ALGOTRACE SOCRATIC CYCLE
@@ -136,16 +136,16 @@ export function LearningLoop() {
                   className={`p-4 rounded-btn border transition-all duration-300 cursor-pointer flex flex-col justify-between min-h-[130px] ${
                     isActive
                       ? "border-bone bg-bone text-smoky font-medium shadow-xl scale-[1.02]"
-                      : "border-olive/30 bg-smoky/90 text-bone/80 hover:border-bone/60"
+                      : "border-bone/30 bg-smoky/90 text-bone/90 hover:border-bone/60"
                   }`}
                 >
                   <div className="flex items-center justify-between font-mono text-xs">
-                    <span className={isActive ? "text-smoky/60" : "text-olive"}>
+                    <span className={isActive ? "text-smoky/60" : "text-bone/60"}>
                       0{idx + 1}
                     </span>
                     {idx < ALGOTRACE_LOOP.length - 1 && (
                       <ArrowRight
-                        className={`w-3 h-3 ${isActive ? "text-smoky" : "text-olive"}`}
+                        className={`w-3 h-3 ${isActive ? "text-smoky" : "text-bone/60"}`}
                       />
                     )}
                     {idx === ALGOTRACE_LOOP.length - 1 && (
@@ -164,7 +164,7 @@ export function LearningLoop() {
                     </h4>
                     <p
                       className={`text-xs leading-snug ${
-                        isActive ? "text-smoky/80" : "text-bone/70"
+                        isActive ? "text-smoky/80" : "text-bone/80"
                       }`}
                     >
                       {item.desc}
@@ -175,7 +175,7 @@ export function LearningLoop() {
             })}
           </div>
 
-          <div className="mt-6 flex items-center justify-between text-xs font-mono text-bone pt-4 border-t border-olive/30">
+          <div className="mt-6 flex items-center justify-between text-xs font-mono text-bone pt-4 border-t border-bone/30">
             <span>ACTIVE REASONING DISCOVERY</span>
             <span className="italic">&ldquo;I didn&apos;t just read the answer. I figured it out myself.&rdquo;</span>
           </div>

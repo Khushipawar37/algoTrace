@@ -51,7 +51,7 @@ export function HintLadder() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section id="practice" className="relative bg-smoky text-floral py-28 px-6 md:px-12 border-t border-olive/30">
+    <section id="practice" className="relative bg-smoky text-floral py-28 px-6 md:px-12 border-t border-bone/20">
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <div className="max-w-3xl mb-20">
@@ -61,7 +61,7 @@ export function HintLadder() {
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-floral leading-[1.05]">
             Help should reveal itself slowly.
           </h2>
-          <p className="text-lg text-bone/70 mt-4 font-normal max-w-xl">
+          <p className="text-lg text-bone/85 mt-4 font-normal max-w-xl">
             Each nudge moves you one step closer to the insight. You control how far down the ladder you need to descend.
           </p>
         </div>
@@ -69,9 +69,9 @@ export function HintLadder() {
         {/* Interactive Sticky / Ladder Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Fixed Indicator (4 Cols) */}
-          <div className="lg:col-span-4 lg:sticky lg:top-32 p-8 rounded-[24px] border border-olive/30 bg-[#171812]">
-            <div className="flex items-center justify-between border-b border-olive/20 pb-4 mb-6">
-              <span className="font-mono text-xs text-olive tracking-widest uppercase">
+          <div className="lg:col-span-4 lg:sticky lg:top-32 p-8 rounded-[24px] border border-bone/30 bg-[#171812]">
+            <div className="flex items-center justify-between border-b border-bone/20 pb-4 mb-6">
+              <span className="font-mono text-xs text-bone/80 tracking-widest uppercase">
                 PROGRESSION SCALE
               </span>
               <span className="font-mono text-xs text-bone font-bold">01 → 05</span>
@@ -87,7 +87,7 @@ export function HintLadder() {
                     className={`w-full flex items-center justify-between p-4 rounded-btn border text-left transition-all duration-300 ${
                       isActive
                         ? "border-bone bg-bone text-smoky font-bold shadow-lg"
-                        : "border-olive/20 bg-smoky/60 text-olive hover:border-olive/50 hover:text-floral"
+                        : "border-bone/20 bg-smoky/60 text-bone/70 hover:border-bone/50 hover:text-floral"
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -96,7 +96,7 @@ export function HintLadder() {
                     </div>
                     <span
                       className={`w-2 h-2 rounded-full ${
-                        isActive ? "bg-smoky" : "bg-olive/40"
+                        isActive ? "bg-smoky" : "bg-bone/40"
                       }`}
                     />
                   </button>
@@ -104,7 +104,7 @@ export function HintLadder() {
               })}
             </div>
 
-            <div className="mt-8 pt-6 border-t border-olive/20 text-xs font-mono text-olive leading-relaxed">
+            <div className="mt-8 pt-6 border-t border-bone/20 text-xs font-mono text-bone/80 leading-relaxed">
               Click or scroll to view how hints evolve from subtle Socratic questions to abstract scaffolding.
             </div>
           </div>
@@ -126,16 +126,16 @@ export function HintLadder() {
                     className="p-8 md:p-12 rounded-[24px] border border-bone/40 bg-[#191A14] text-floral shadow-2xl relative overflow-hidden min-h-[420px] flex flex-col justify-between"
                   >
                     {/* Background subtle watermark */}
-                    <div className="absolute right-6 top-4 font-mono text-8xl font-black text-olive/10 select-none pointer-events-none">
+                    <div className="absolute right-6 top-4 font-mono text-8xl font-black text-bone/10 select-none pointer-events-none">
                       {step.level}
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between mb-8 pb-4 border-b border-olive/30">
+                      <div className="flex items-center justify-between mb-8 pb-4 border-b border-bone/30">
                         <span className="font-mono text-xs text-bone tracking-widest uppercase font-semibold">
                           {step.tag}
                         </span>
-                        <span className="font-mono text-xs text-olive">
+                        <span className="font-mono text-xs text-bone/80">
                           STEP {step.level} OF 05
                         </span>
                       </div>
@@ -149,14 +149,14 @@ export function HintLadder() {
                           <p className="font-mono text-sm text-bone/90 mb-4">
                             {step.text}:
                           </p>
-                          <div className="p-6 rounded-btn bg-smoky border border-olive/40 font-mono text-sm text-bone leading-relaxed">
+                          <div className="p-6 rounded-btn bg-smoky border border-bone/30 font-mono text-sm text-bone leading-relaxed">
                             <pre className="whitespace-pre overflow-x-auto">{step.codeSnippet}</pre>
                           </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="pt-6 border-t border-olive/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="pt-6 border-t border-bone/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-bone" />
                         <span className="font-mono text-xs text-bone">{step.caption}</span>
@@ -166,7 +166,7 @@ export function HintLadder() {
                         <button
                           disabled={activeIndex === 0}
                           onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
-                          className="px-3 py-1.5 rounded border border-olive/40 text-xs font-mono text-olive hover:text-floral disabled:opacity-30 disabled:pointer-events-none"
+                          className="px-3 py-1.5 rounded border border-bone/40 text-xs font-mono text-bone/80 hover:text-floral disabled:opacity-30 disabled:pointer-events-none"
                         >
                           ← PREV
                         </button>

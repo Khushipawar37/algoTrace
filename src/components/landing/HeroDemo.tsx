@@ -92,11 +92,11 @@ export function HeroDemo() {
   return (
     <section id="demo" className="relative bg-smoky text-floral py-24 px-6 md:px-12 overflow-hidden">
       {/* Background ambient lighting */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-olive/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-olive/15 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-olive/30 pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-bone/20 pb-6">
           <div>
             <div className="flex items-center gap-2 font-mono text-xs text-bone tracking-widest uppercase mb-2">
               <span className="w-2 h-2 rounded-full bg-bone animate-pulse" />
@@ -111,7 +111,7 @@ export function HeroDemo() {
           <div className="mt-4 md:mt-0 flex items-center gap-3">
             <button
               onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-olive/40 bg-smoky text-xs font-mono text-bone hover:border-bone transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-bone/30 bg-smoky text-xs font-mono text-bone hover:border-bone hover:bg-bone/10 transition-colors"
             >
               {isAutoPlaying ? (
                 <>
@@ -126,7 +126,7 @@ export function HeroDemo() {
               )}
             </button>
 
-            <div className="flex items-center gap-1 bg-olive/20 p-1 rounded-md border border-olive/40">
+            <div className="flex items-center gap-1 bg-bone/10 p-1 rounded-md border border-bone/30">
               {DEMO_STEPS.map((s, idx) => (
                 <button
                   key={s.id}
@@ -137,7 +137,7 @@ export function HeroDemo() {
                   className={`w-6 h-6 rounded text-xs font-mono transition-all ${
                     currentStepIndex === idx
                       ? "bg-bone text-smoky font-bold"
-                      : "text-olive hover:text-floral"
+                      : "text-bone/70 hover:text-floral"
                   }`}
                 >
                   0{s.id}
@@ -148,26 +148,26 @@ export function HeroDemo() {
         </div>
 
         {/* Large Editor Canvas Composition */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 rounded-[24px] border border-olive/40 bg-smoky/90 shadow-2xl overflow-hidden backdrop-blur-xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 rounded-[24px] border border-bone/30 bg-smoky/95 shadow-2xl overflow-hidden backdrop-blur-xl">
           {/* Left: Code Editor Surface (7 Cols) */}
-          <div className="lg:col-span-7 border-b lg:border-b-0 lg:border-r border-olive/30 p-6 md:p-8 flex flex-col justify-between min-h-[460px]">
+          <div className="lg:col-span-7 border-b lg:border-b-0 lg:border-r border-bone/20 p-6 md:p-8 flex flex-col justify-between min-h-[460px]">
             <div>
               {/* Header metadata */}
-              <div className="flex items-center justify-between border-b border-olive/20 pb-4 mb-6">
+              <div className="flex items-center justify-between border-b border-bone/20 pb-4 mb-6">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-olive/60" />
-                    <span className="w-3 h-3 rounded-full bg-olive/40" />
-                    <span className="w-3 h-3 rounded-full bg-olive/20" />
+                    <span className="w-3 h-3 rounded-full bg-bone/40" />
+                    <span className="w-3 h-3 rounded-full bg-bone/30" />
+                    <span className="w-3 h-3 rounded-full bg-bone/20" />
                   </div>
                   <span className="font-mono text-sm text-floral font-semibold ml-2">
                     Two Sum
                   </span>
-                  <span className="text-[10px] font-mono tracking-wider px-2 py-0.5 rounded-full border border-olive/40 text-bone uppercase">
+                  <span className="text-[10px] font-mono tracking-wider px-2 py-0.5 rounded-full border border-bone/40 text-bone uppercase">
                     ARRAYS • EASY
                   </span>
                 </div>
-                <span className="font-mono text-xs text-olive">C++20</span>
+                <span className="font-mono text-xs text-bone/80">C++20</span>
               </div>
 
               {/* Code Snippet Area */}
@@ -181,7 +181,7 @@ export function HeroDemo() {
                   />
                 )}
 
-                <pre className="text-floral/90 overflow-x-auto whitespace-pre">
+                <pre className="text-floral overflow-x-auto whitespace-pre">
                   {step.code.split("\n").map((line, index) => {
                     const lineNum = index + 1;
                     const isHighlighted = step.highlightLine === lineNum;
@@ -191,11 +191,11 @@ export function HeroDemo() {
                         key={index}
                         className={`flex items-start px-3 py-1 rounded transition-colors duration-300 ${
                           isHighlighted
-                            ? "bg-bone/15 border-l-2 border-bone text-floral"
-                            : "hover:bg-olive/10"
+                            ? "bg-bone/20 border-l-2 border-bone text-floral"
+                            : "hover:bg-bone/5"
                         }`}
                       >
-                        <span className="w-8 select-none text-olive/60 text-xs text-right pr-4 pt-0.5">
+                        <span className="w-8 select-none text-bone/50 text-xs text-right pr-4 pt-0.5">
                           {lineNum}
                         </span>
                         <span className="flex-1 font-mono">{line}</span>
@@ -207,9 +207,9 @@ export function HeroDemo() {
             </div>
 
             {/* Trace status banner */}
-            <div className="mt-8 pt-4 border-t border-olive/20 flex items-center justify-between text-xs font-mono text-olive">
+            <div className="mt-8 pt-4 border-t border-bone/20 flex items-center justify-between text-xs font-mono text-bone/80">
               <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${step.analyzing ? "bg-bone animate-ping" : "bg-olive"}`} />
+                <span className={`w-2 h-2 rounded-full ${step.analyzing ? "bg-bone animate-ping" : "bg-bone/80"}`} />
                 <span>{step.analyzing ? "TRACING EXECUTION PATH..." : "AST & RUNTIME VERIFIED"}</span>
               </div>
               <span>COMPLEXITY: {currentStepIndex === 3 ? "O(N)" : "O(N²)"}</span>
@@ -224,7 +224,7 @@ export function HeroDemo() {
                 <span className="font-mono text-xs tracking-widest text-bone font-semibold uppercase px-2.5 py-1 rounded border border-bone/30 bg-bone/5">
                   {step.guidanceStep}
                 </span>
-                <span className="font-mono text-xs text-olive">REASONING GUARDIAN</span>
+                <span className="font-mono text-xs text-bone/80">REASONING GUARDIAN</span>
               </div>
 
               {/* Guidance content with animated transitions */}
@@ -237,7 +237,7 @@ export function HeroDemo() {
                   transition={{ duration: 0.35 }}
                   className="space-y-6"
                 >
-                  <p className="text-sm font-sans text-bone/80 leading-relaxed">
+                  <p className="text-sm font-sans text-bone/90 leading-relaxed">
                     {step.guidanceText1}
                   </p>
 
@@ -245,8 +245,8 @@ export function HeroDemo() {
                     &ldquo;{step.guidanceText2}&rdquo;
                   </h3>
 
-                  <div className="p-4 rounded-btn border border-olive/30 bg-smoky/60">
-                    <p className="text-xs font-mono text-bone/90 flex items-center gap-2">
+                  <div className="p-4 rounded-btn border border-bone/30 bg-smoky/80">
+                    <p className="text-xs font-mono text-bone flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-bone" />
                       <span>{step.guidanceFooter}</span>
                     </p>
@@ -256,7 +256,7 @@ export function HeroDemo() {
             </div>
 
             {/* Interactive button trigger */}
-            <div className="mt-8 pt-6 border-t border-olive/30 flex items-center justify-between">
+            <div className="mt-8 pt-6 border-t border-bone/30 flex items-center justify-between">
               <button
                 onClick={() => {
                   setIsAutoPlaying(false);

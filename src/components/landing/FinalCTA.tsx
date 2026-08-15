@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 
 export function FinalCTA() {
   return (
-    <section className="relative bg-smoky text-floral py-36 px-6 md:px-12 overflow-hidden border-t border-olive/30 min-h-[85vh] flex flex-col justify-center items-center text-center">
+    <section className="relative bg-smoky text-floral py-36 px-6 md:px-12 overflow-hidden border-t border-bone/20 min-h-[85vh] flex flex-col justify-center items-center text-center">
       {/* Background ambient lighting */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-bone/5 blur-[140px] rounded-full pointer-events-none" />
 
@@ -16,7 +16,7 @@ export function FinalCTA() {
         {/* Animated trace line motif */}
         <div className="flex items-center gap-3 mb-8">
           <span className="w-2 h-2 rounded-full bg-bone animate-ping" />
-          <div className="w-24 h-[1.5px] bg-gradient-to-r from-bone to-olive" />
+          <div className="w-24 h-[1.5px] bg-gradient-to-r from-bone to-bone/30" />
           <span className="w-2.5 h-2.5 rounded-full bg-bone" />
         </div>
 
@@ -34,7 +34,7 @@ export function FinalCTA() {
           </span>
         </h2>
 
-        <p className="text-2xl sm:text-3xl font-serif italic text-olive mb-12">
+        <p className="text-2xl sm:text-3xl font-serif italic text-bone/90 mb-12">
           Find your way there.
         </p>
 
