@@ -35,6 +35,7 @@ interface DSATutorProps {
   language: string;
   weakness: WeaknessVector;
   hintCount: number;
+  testContext?: string;
 }
 
 /* — Quick action chip definitions — */
@@ -217,6 +218,7 @@ export function DSATutor({
   language,
   weakness,
   hintCount,
+  testContext,
 }: DSATutorProps) {
   const [messages, setMessages] = useState<TutorMessage[]>([]);
   const [input, setInput] = useState("");
@@ -302,6 +304,7 @@ export function DSATutor({
             conversation: [...messages, userMsg].slice(-20), // keep last 20 messages for context
             userMessage: messageText,
             hintCount,
+            testContext,
           }),
         });
 
@@ -332,7 +335,7 @@ export function DSATutor({
         inputRef.current?.focus();
       }
     },
-    [code, hintCount, language, loading, messages, problem, weakness],
+    [code, hintCount, language, loading, messages, problem, testContext, weakness],
   );
 
   /* — Handle form submit — */

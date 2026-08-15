@@ -6,11 +6,18 @@ interface HintPanelProps {
   hints: [string, string, string];
   revealedCount: number;
   onRequest: () => void;
+  autoDiagnosis?: string;
 }
 
-export function HintPanel({ hints, revealedCount, onRequest }: HintPanelProps) {
+export function HintPanel({ hints, revealedCount, onRequest, autoDiagnosis }: HintPanelProps) {
   return (
     <div className="space-y-3">
+      {autoDiagnosis && (
+        <div className="rounded-md border border-amber-300/60 bg-amber-50/80 p-3 text-sm text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/20 dark:text-amber-200">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide">Auto Diagnosis</p>
+          <p>{autoDiagnosis}</p>
+        </div>
+      )}
       <Button
         onClick={onRequest}
         className="w-full"

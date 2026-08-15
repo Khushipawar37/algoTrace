@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { buildTutorMessages } from "@/lib/tutor-prompt";
 import { generateHeuristicResponse } from "@/lib/tutor-heuristic";
+import { generateLangChainHuggingFaceReply } from "@/lib/coach-langchain";
 import type { Problem } from "@/lib/types";
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -62,6 +63,7 @@ const requestSchema = z.object({
   conversation: z.array(messageSchema),
   userMessage: z.string(),
   hintCount: z.number(),
+  testContext: z.string().optional(),
 });
 
 /* — Call Gemini API — */
@@ -123,6 +125,30 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const parsed = requestSchema.parse(body);
+
+    if (process.env.HUGGINGFACE_API_KEY) {
+      try {
+        const recentConversation = parsed.conversation
+          .slice(-8)
+          .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+          .join("\n");
+
+        const reply = await generateLangChainHuggingFaceReply({
+          problem: parsed.problem as unknown as Problem,
+          code: parsed.code,
+          language: parsed.language,
+          weakness: parsed.weakness,
+          hintLevel: parsed.hintLevel,
+          userMessage: parsed.userMessage,
+          recentConversation,
+          testContext: parsed.testContext,
+        });
+
+        return NextResponse.json({ reply, source: "langchain-huggingface" });
+      } catch (hfError) {
+        console.error("LangChain/HuggingFace coach failed, trying Gemini:", hfError);
+      }
+    }
 
     const hasApiKey = !!process.env.GEMINI_API_KEY;
 

@@ -1,22 +1,19 @@
 import type { Metadata } from "next";
-
-import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AlgoTrace | Behavioral DSA Coach",
+  title: "AlgoTrace — Intelligent DSA Guidance",
   description:
-    "AI-powered behavioral coaching system for DSA practice. Track coding behavior, identify weaknesses, and improve with Socratic guidance.",
-  keywords: ["DSA", "coding coach", "behavioral analysis", "algorithm practice", "AI coaching"],
+    "AlgoTrace studies your reasoning, code, errors and attempts to give you the next useful hint—not the final solution.",
+  keywords: ["DSA", "coding coach", "Socratic learning", "algorithm tutor", "problem solving"],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
-      <body className="min-h-screen font-[var(--font-space)]">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+      <body className="min-h-screen bg-floral text-smoky font-sans antialiased selection:bg-bone selection:text-smoky">
         <ThemeProvider>
-          <Navbar />
           {children}
         </ThemeProvider>
       </body>
