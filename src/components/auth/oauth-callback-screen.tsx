@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { stackClientApp } from "@/stack";
 
 export function OauthCallbackScreen() {
@@ -35,13 +34,13 @@ export function OauthCallbackScreen() {
 
         if (!user) {
           setError("We could not establish your session. Redirecting to sign in...");
-          setTimeout(() => window.location.assign("/sign-in?returnTo=/dashboard"), 1000);
+          setTimeout(() => window.location.assign("/sign-in"), 1000);
           return;
         }
 
-        if (user.isRestricted) {
+        if (user.isRestricted || !user.primaryEmailVerified) {
           window.location.assign(
-            user.primaryEmail ? `/verify-email?email=${encodeURIComponent(user.primaryEmail)}` : "/verify-email",
+            user.primaryEmail ? `/verify-email?email=${encodeURIComponent(user.primaryEmail)}` : "/verify-email"
           );
           return;
         }
@@ -49,8 +48,8 @@ export function OauthCallbackScreen() {
         window.location.assign("/dashboard");
       } catch {
         if (!active) return;
-        setError("OAuth callback failed. Redirecting to sign in...");
-        setTimeout(() => window.location.assign("/sign-in?returnTo=/dashboard"), 1000);
+        setError("Google authentication callback failed. Redirecting to sign in...");
+        setTimeout(() => window.location.assign("/sign-in"), 1000);
       }
     }
 
@@ -61,10 +60,11 @@ export function OauthCallbackScreen() {
   }, []);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-lg items-center justify-center px-6">
-      <div className="w-full space-y-3 rounded-xl border border-border/60 bg-card p-6 text-center">
-        <h1 className="font-[var(--font-sora)] text-2xl font-bold">Completing Sign-In</h1>
-        <p className="text-sm text-muted-foreground">{error ?? "Please wait while we finish your OAuth login..."}</p>
+    <main className="min-h-screen bg-floral text-smoky flex items-center justify-center p-6 font-sans">
+      <div className="w-full max-w-md p-8 rounded-[28px] border border-smoky/20 bg-bone/30 shadow-2xl text-center space-y-4 font-mono text-xs">
+        <span className="text-olive uppercase tracking-widest block font-semibold">GOOGLE AUTHENTICATION</span>
+        <h1 className="text-xl font-bold tracking-tight text-smoky font-sans">Completing Sign-In</h1>
+        <p className="text-olive">{error ?? "Please wait while we establish your secure session..."}</p>
       </div>
     </main>
   );

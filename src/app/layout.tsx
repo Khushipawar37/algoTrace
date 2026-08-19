@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackServerApp } from "@/stack";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -14,7 +16,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className="min-h-screen bg-floral text-smoky font-sans antialiased selection:bg-bone selection:text-smoky">
         <ThemeProvider>
-          {children}
+          {stackServerApp ? (
+            <StackProvider app={stackServerApp}>
+              <StackTheme>{children}</StackTheme>
+            </StackProvider>
+          ) : (
+            children
+          )}
         </ThemeProvider>
       </body>
     </html>

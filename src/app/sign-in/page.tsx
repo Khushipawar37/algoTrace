@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { StackAuthScreen } from "@/components/auth/stack-auth-screen";
+import { PublicOnlyRoute } from "@/components/auth/public-only-route";
 
 type SearchParams = {
   returnTo?: string;
+  redirect?: string;
   error?: string;
   error_description?: string;
   errorCode?: string;
@@ -15,7 +18,7 @@ export default async function SignInPage({
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
-  const returnTo = params.returnTo === "/" ? "/" : "/dashboard";
+  const returnTo = params.redirect || params.returnTo || "/dashboard";
 
   let initialEmail = params.email ?? "";
   if (params.details) {
@@ -29,18 +32,25 @@ export default async function SignInPage({
     }
   }
 
-  const isGoogleConflict = params.errorCode === "CONTACT_CHANNEL_ALREADY_USED_FOR_AUTH_BY_SOMEONE_ELSE";
-  const initialError = isGoogleConflict
-    ? "Account conflict detected for this email. Trying automatic Google resolution..."
-    : params.error_description || (params.error ? `Authentication failed (${params.error}).` : undefined);
+  const initialError =
+    params.error_description || (params.error ? `Authentication failed (${params.error}).` : undefined);
 
   return (
-    <StackAuthScreen
-      mode="sign-in"
-      returnTo={returnTo}
-      initialError={initialError}
-      initialEmail={initialEmail}
-      autoResolveGoogleConflict={isGoogleConflict}
-    />
+    <PublicOnlyRoute>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-floral text-smoky flex items-center justify-center font-mono text-xs">
+            Loading sign in...
+          </div>
+        }
+      >
+        <StackAuthScreen
+          mode="sign-in"
+          returnTo={returnTo}
+          initialError={initialError}
+          initialEmail={initialEmail}
+        />
+      </Suspense>
+    </PublicOnlyRoute>
   );
 }

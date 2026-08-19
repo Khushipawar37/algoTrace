@@ -4,7 +4,7 @@
   "description": "AlgoTrace - AI-powered behavioral coding coach for DSA",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "echo \"Lint configuration is pending TypeScript ESLint setup.\""
