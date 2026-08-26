@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum OutputComparison {
+  EXACT
+  TRIMMED
+  TOKENS
+  UNORDERED
+  CUSTOM
+}
+
+enum SubmissionStatus {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  COMPILATION_ERROR
+  RUNTIME_ERROR
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  INTERNAL_ERROR
+}
+
+enum ProgressStatus {
+  UNATTEMPTED
+  GUIDED
+  INDEPENDENT
+  SOLVED
+}
+
+model Problem {
+  id                      String                @id @default(cuid())
+  slug                    String                @unique
+  title                   String
+  difficulty              Difficulty
+  description             String
+  constraints             String[]
+  source                  String?
+  sourceUrl               String?
+  externalProblemId       String?
+  orderIndex              Int                   @default(0)
+  isPublished             Boolean               @default(false)
+  timeLimitMs             Int                   @default(2000)
+  memoryLimitMb           Int                   @default(256)
+  outputComparison        OutputComparison      @default(TRIMMED)
+  expectedTimeComplexity  String?
+  expectedSpaceComplexity String?
+  canonicalPatterns       String[]              @default([])
+  prerequisiteTopics      String[]              @default([])
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  topics                  ProblemTopic[]
+  examples                ProblemExample[]
+  templates               ProblemTemplate[]
+  testCases               TestCase[]
+  submissions             Submission[]
+  progress                UserProblemProgress[]
+
+  @@index([isPublished, orderIndex])
+  @@index([difficulty, isPublished])
+}
+
+model Topic {
+  id       String         @id @default(cuid())
+  name     String         @unique
+  slug     String         @unique
+  problems ProblemTopic[]
+}
+
+model ProblemTopic {
+  problemId String
+  topicId   String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  topic     Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, topicId])
+  @@index([topicId, problemId])
+}
+
+model ProblemExample {
+  id          String  @id @default(cuid())
+  problemId   String
+  input       String
+  output      String
+  explanation String?
+  orderIndex  Int
+  problem     Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, orderIndex])
+}
+
+model ProblemTemplate {
+  id              String   @id @default(cuid())
+  problemId       String
+  language        String
+  languageVersion String
+  starterCode     String
+  driverCode      String
+  functionName    String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  problem         Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, language])
+}
+
+model TestCase {
+  id             String   @id @default(cuid())
+  problemId      String
+  input          String
+  expectedOutput String
+  isHidden       Boolean  @default(true)
+  orderIndex     Int
+  weight         Int      @default(1)
+  createdAt      DateTime @default(now())
+  problem        Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, orderIndex])
+  @@index([problemId, isHidden, orderIndex])
+}
+
+model Submission {
+  id              String           @id @default(cuid())
+  userId          String
+  problemId       String
+  language        String
+  sourceCode      String
+  status          SubmissionStatus @default(PENDING)
+  runtimeMs       Int?
+  memoryKb        Int?
+  passedCases     Int              @default(0)
+  totalCases      Int              @default(0)
+  failedTestIndex Int?
+  diagnostic      String?
+  createdAt       DateTime         @default(now())
+  problem         Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId, problemId, createdAt])
+}
+
+model UserProblemProgress {
+  id            String         @id @default(cuid())
+  userId        String
+  problemId     String
+  status        ProgressStatus @default(UNATTEMPTED)
+  attempts      Int            @default(0)
+  guidanceLevel Int            @default(0)
+  lastAttemptAt DateTime?
+  solvedAt      DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  problem       Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@index([userId, status, lastAttemptAt])
+}

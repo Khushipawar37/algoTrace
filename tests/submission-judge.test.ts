@@ -1,0 +1,5 @@
+import test from "node:test"; import assert from "node:assert/strict";
+import { setCodeExecutorForTests } from "../src/lib/execution/executor"; import { judgeSubmission } from "../src/lib/judge/submission-judge"; import type { ExecutionResult } from "../src/lib/execution/types";
+const base={driverCode:"// USER_CODE",code:"solution",testCases:[{input:"x",expectedOutput:"ok"}],comparison:"TRIMMED" as const,timeLimitMs:1000,memoryLimitMb:128};
+for(const [name,result,verdict] of [["accepted",{status:"success",stdout:"ok\n"},"ACCEPTED"],["wrong answer",{status:"success",stdout:"no"},"WRONG_ANSWER"],["compile error",{status:"compile_error",stderr:"bad"},"COMPILATION_ERROR"],["runtime error",{status:"runtime_error"},"RUNTIME_ERROR"],["timeout",{status:"timeout"},"TIME_LIMIT_EXCEEDED"]] as const){test(name,async()=>{setCodeExecutorForTests({execute:async()=>result as ExecutionResult});assert.equal((await judgeSubmission(base)).verdict,verdict);});}
+test.after(()=>setCodeExecutorForTests(undefined));

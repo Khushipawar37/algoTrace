@@ -1,0 +1,10 @@
+import type { Difficulty, ProgressStatus } from "@prisma/client";
+import { db } from "@/lib/db";
+
+const difficultyLabel=(v:Difficulty)=>v[0]+v.slice(1).toLowerCase();
+const statusLabel=(v?:ProgressStatus)=>v==="INDEPENDENT"||v==="SOLVED"?"solved-independent":v==="GUIDED"?"solved-guidance":"not-attempted";
+export async function listProblems(input:{userId?:string;search?:string;difficulty?:string;topic?:string;status?:string}){
+  const rows=await db.problem.findMany({where:{isPublished:true,...(input.search?{OR:[{title:{contains:input.search,mode:"insensitive"}},{topics:{some:{topic:{name:{contains:input.search,mode:"insensitive"}}}}}]}:{}),...(input.difficulty&&input.difficulty!=="All"?{difficulty:input.difficulty.toUpperCase() as Difficulty}:{}),...(input.topic&&input.topic!=="All"?{topics:{some:{topic:{slug:input.topic}}}}:{})},orderBy:{orderIndex:"asc"},select:{slug:true,title:true,difficulty:true,topics:{select:{topic:{select:{name:true,slug:true}}}},progress:input.userId?{where:{userId:input.userId},take:1,select:{status:true,guidanceLevel:true,lastAttemptAt:true}}:false}});
+  return rows.map(r=>{const p=r.progress?.[0];return {slug:r.slug,title:r.title,difficulty:difficultyLabel(r.difficulty),topics:r.topics.map(x=>x.topic.name),status:statusLabel(p?.status),guidanceUsed:p?`${p.guidanceLevel}/5`:"—",lastAttempt:p?.lastAttemptAt?.toISOString()??null};}).filter(r=>!input.status||input.status==="All"||r.status===input.status);
+}
+export async function getPublicProblem(slug:string){const p=await db.problem.findFirst({where:{slug,isPublished:true},select:{id:true,slug:true,title:true,difficulty:true,description:true,constraints:true,timeLimitMs:true,memoryLimitMb:true,topics:{select:{topic:{select:{name:true}}}},examples:{orderBy:{orderIndex:"asc"},select:{input:true,output:true,explanation:true}},templates:{where:{language:"cpp"},take:1,select:{language:true,languageVersion:true,starterCode:true}}}});return p?{...p,difficulty:difficultyLabel(p.difficulty),topics:p.topics.map(x=>x.topic.name),template:p.templates[0]??null,templates:undefined}:null;}
