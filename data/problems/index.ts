@@ -13,7 +13,7 @@ export const problems: ProblemSeed[] = [
     examples:[{input:"4\n2 7 11 15\n9",output:"0 1",explanation:"2 + 7 equals 9."},{input:"3\n3 2 4\n6",output:"1 2"}],
     starterCode:`class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // Write your solution here\n        return {};\n    }\n};`,
     driverCode:vectorProblem(`int target;cin>>target;Solution s;auto ans=s.twoSum(a,target);${printVector}return 0;`), functionName:"twoSum",
-    tests:[{input:"2\n3 3\n6",output:"0 1"},{input:"5\n-4 -1 0 5 9\n5",output:"0 4"},{input:"4\n10 20 30 40\n70",output:"2 3"},{input:"3\n0 4 3\n0",output:"0 0",hidden:false},{input:"6\n1 8 2 7 3 6\n9",output:"0 1"}], comparison:"TOKENS", expectedTimeComplexity:"O(n)", expectedSpaceComplexity:"O(n)"
+    tests:[{input:"2\n3 3\n6",output:"0 1"},{input:"5\n-4 -1 1 5 9\n5",output:"0 4"},{input:"4\n10 20 30 40\n70",output:"2 3"},{input:"3\n0 4 3\n0",output:"0 0",hidden:false},{input:"6\n1 8 2 7 3 6\n9",output:"0 1"}], comparison:"TOKENS", expectedTimeComplexity:"O(n)", expectedSpaceComplexity:"O(n)"
   },
   {
     title:"Binary Search", slug:"binary-search", difficulty:"EASY", topics:["Arrays","Binary Search"],

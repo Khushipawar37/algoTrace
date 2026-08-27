@@ -17,15 +17,18 @@ test("normalizes local configuration and treats an empty key as absent", () => {
 
 test("sends authentication only when configured", async () => {
   const originalFetch = globalThis.fetch;
-  const seen: HeadersInit[] = [];
-  globalThis.fetch = async (_input, init) => {
-    seen.push(init?.headers ?? {});
-    return new Response(JSON.stringify({ status: { id: 3, description: "Accepted" }, stdout: "ok" }), { status: 200, headers: { "Content-Type": "application/json" } });
+  const seen: { headers: HeadersInit; url: string; body: string }[] = [];
+  globalThis.fetch = async (input, init) => {
+    seen.push({ headers: init?.headers ?? {}, url: String(input), body: String(init?.body ?? "") });
+    return new Response(JSON.stringify({ status: { id: 3, description: "Accepted" }, stdout: "b2s=" }), { status: 200, headers: { "Content-Type": "application/json" } });
   };
   try {
-    await new Judge0Executor({ baseUrl: "http://localhost:2358", cppLanguageId: 54 }).execute({ language: "cpp", sourceCode: "x", stdin: "" });
+    const localResult = await new Judge0Executor({ baseUrl: "http://localhost:2358", cppLanguageId: 54 }).execute({ language: "cpp", sourceCode: "x", stdin: "" });
     await new Judge0Executor({ baseUrl: "https://judge.example", cppLanguageId: 105, apiKey: "secret" }).execute({ language: "cpp", sourceCode: "x", stdin: "" });
-    assert.equal(new Headers(seen[0]).has("X-Auth-Token"), false);
-    assert.equal(new Headers(seen[1]).get("X-Auth-Token"), "secret");
+    assert.equal(new Headers(seen[0].headers).has("X-Auth-Token"), false);
+    assert.equal(new Headers(seen[1].headers).get("X-Auth-Token"), "secret");
+    assert.match(seen[0].url, /base64_encoded=true/);
+    assert.deepEqual(JSON.parse(seen[0].body), { source_code: "eA==", language_id: 54, stdin: "", cpu_time_limit: 2, memory_limit: 262144, max_file_size: 1024 });
+    assert.equal(localResult.stdout, "ok");
   } finally { globalThis.fetch = originalFetch; }
 });
