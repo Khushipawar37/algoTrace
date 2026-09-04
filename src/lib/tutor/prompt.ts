@@ -1,7 +1,7 @@
 import { TUTOR_POLICIES } from "./constants";
 import type { TutorHintLevel, TutorProblemContext } from "./types";
 
-export function buildTutorSystemPrompt(input: { hintLevel: TutorHintLevel; problem: TutorProblemContext; codeProvided: boolean; attemptAnalysis?: string; executionDiagnosis?: string; retry?: boolean }) {
+export function buildTutorSystemPrompt(input: { hintLevel: TutorHintLevel; problem: TutorProblemContext; codeProvided: boolean; attemptAnalysis?: string; executionDiagnosis?: string; tutorDecision?: string; retry?: boolean }) {
   const policy = TUTOR_POLICIES[input.hintLevel];
   return `You are AlgoTrace Tutor, a patient DSA mentor, not a solution generator.
 Guide reasoning and prefer focused questions over answers. Address only the student's immediate blockage and encourage their next attempt.
@@ -27,6 +27,10 @@ The attempt analysis identifies what may be happening, but it never changes what
 Internal execution diagnosis (trusted only when marked as matching current code; never invent or expose hidden data):
 ${input.executionDiagnosis ?? "No matching execution evidence is available."}
 Diagnosis identifies execution-grounded failure signals but never changes reveal limits. The hint policy above remains authoritative.
+
+Internal teaching decision (follow this action; never expose its metadata):
+${input.tutorDecision ?? "Use a safe Socratic fallback."}
+Convert this decision into natural tutoring language. Do not independently select a different intervention. If it conflicts with the allowed/forbidden policy, the policy wins.
 
 Reply concisely (normally under 140 words). Do not mention internal levels.`;
 }

@@ -16,10 +16,13 @@ import { discardStaleExecution, normalizeExecutionResult } from "@/lib/tutor/dia
 import { loadRecentExecution } from "@/lib/tutor/diagnosis/store";
 import type { ExecutionContext } from "@/lib/tutor/diagnosis/types";
 import type { TutorHintLevel, TutorSessionState } from "@/lib/tutor/types";
+import { decideTutorAction } from "@/lib/tutor/decision/engine";
+import { summarizeTutorDecision } from "@/lib/tutor/decision/context";
+import type { TutorAction } from "@/lib/tutor/decision/types";
 
 const schema = z.object({ problemId: z.string().min(1).max(100), message: z.string().trim().min(1).max(MAX_TUTOR_MESSAGE_LENGTH), code: z.string().max(MAX_TUTOR_CODE_LENGTH).optional(), language: z.enum(["cpp", "javascript", "python", "java"]).default("cpp"), sessionId: z.string().min(1).max(100).optional(), executionRef: z.string().uuid().optional() });
 const apiError = (message: string, status: number, code: string) => NextResponse.json({ error: { message, code } }, { status });
-type ConversationRow = { id: string; currentHintLevel: number; lastHintLevel: number | null; hintsGiven: number; studentAskedForMoreHelp: boolean };
+type ConversationRow = { id: string; currentHintLevel: number; lastHintLevel: number | null; hintsGiven: number; studentAskedForMoreHelp: boolean; lastTutorAction: string | null; lastDecisionFocus: string | null };
 type MessageRow = { role: "USER" | "TUTOR"; content: string };
 
 export async function POST(request: Request) {
@@ -31,11 +34,11 @@ export async function POST(request: Request) {
     const problem = await db.problem.findFirst({ where: { OR: [{ id: parsed.data.problemId }, { slug: parsed.data.problemId }], isPublished: true }, select: { id: true, slug: true, title: true, description: true, constraints: true, guidanceHints: true, expectedTimeComplexity: true, expectedSpaceComplexity: true, canonicalPatterns: true, commonMistakes: true, topics: { select: { topic: { select: { name: true } } } }, examples: { orderBy: { orderIndex: "asc" }, take: 3, select: { input: true, output: true } }, templates: { where: { language: parsed.data.language }, take: 1, select: { starterCode: true } } } });
     if (!problem) return apiError("Problem not found.", 404, "PROBLEM_NOT_FOUND");
 
-    let rows = parsed.data.sessionId ? await db.$queryRaw<ConversationRow[]>`SELECT "id", "currentHintLevel", "lastHintLevel", "hintsGiven", "studentAskedForMoreHelp" FROM "TutorConversation" WHERE "id" = ${parsed.data.sessionId} AND "userId" = ${user.id} AND "problemId" = ${problem.id} LIMIT 1` : [];
+    let rows = parsed.data.sessionId ? await db.$queryRaw<ConversationRow[]>`SELECT "id", "currentHintLevel", "lastHintLevel", "hintsGiven", "studentAskedForMoreHelp", "lastTutorAction", "lastDecisionFocus" FROM "TutorConversation" WHERE "id" = ${parsed.data.sessionId} AND "userId" = ${user.id} AND "problemId" = ${problem.id} LIMIT 1` : [];
     if (parsed.data.sessionId && !rows.length) return apiError("Tutor session is invalid.", 404, "INVALID_SESSION");
     if (!rows.length) {
       const id = randomUUID();
-      rows = await db.$queryRaw<ConversationRow[]>`INSERT INTO "TutorConversation" ("id", "userId", "problemId", "updatedAt") VALUES (${id}, ${user.id}, ${problem.id}, NOW()) RETURNING "id", "currentHintLevel", "lastHintLevel", "hintsGiven", "studentAskedForMoreHelp"`;
+      rows = await db.$queryRaw<ConversationRow[]>`INSERT INTO "TutorConversation" ("id", "userId", "problemId", "updatedAt") VALUES (${id}, ${user.id}, ${problem.id}, NOW()) RETURNING "id", "currentHintLevel", "lastHintLevel", "hintsGiven", "studentAskedForMoreHelp", "lastTutorAction", "lastDecisionFocus"`;
     }
     const session = rows[0];
     const historyRows = await db.$queryRaw<MessageRow[]>`SELECT "role", "content" FROM "TutorMessage" WHERE "conversationId" = ${session.id} ORDER BY "createdAt" DESC LIMIT ${MAX_HISTORY_MESSAGES}`;
@@ -54,10 +57,11 @@ export async function POST(request: Request) {
     const state: TutorSessionState = { id: session.id, userId: user.id, problemId: problem.id, currentHintLevel: session.currentHintLevel as TutorHintLevel, hintsGiven: session.hintsGiven, lastHintLevel: session.lastHintLevel as TutorHintLevel | undefined, studentAskedForMoreHelp: session.studentAskedForMoreHelp, fullSolutionUnlocked: false };
     const hintLevel = determineNextHintLevel(state, intent);
     const guidanceHints = Array.isArray(problem.guidanceHints) ? problem.guidanceHints.filter((value): value is string => typeof value === "string") : [];
-    const result = await generateTutorResponse({ message: parsed.data.message, code: parsed.data.code, hintLevel, intent, attemptAnalysis: summarizeAttemptAnalysis(attemptAnalysis), executionDiagnosis: summarizeExecutionDiagnosis(executionDiagnosis), history: historyRows.reverse().map((item) => ({ role: item.role === "USER" ? "user" : "model", content: item.content })), problem: { id: problem.id, title: problem.title, description: problem.description, constraints: problem.constraints, topics: problem.topics.map(({ topic }) => topic.name), guidanceHints } });
+    const decision = decideTutorAction({ studentIntent: intent, hintLevel, attemptAnalysis, executionDiagnosis, session: { previousAction: session.lastTutorAction as TutorAction | undefined, lastDecisionFocus: session.lastDecisionFocus ?? undefined, previousHintLevel: session.lastHintLevel as TutorHintLevel | undefined, studentAskedForMoreHelp: session.studentAskedForMoreHelp } });
+    const result = await generateTutorResponse({ message: parsed.data.message, code: parsed.data.code, hintLevel, intent, attemptAnalysis: summarizeAttemptAnalysis(attemptAnalysis), executionDiagnosis: summarizeExecutionDiagnosis(executionDiagnosis), tutorDecision: summarizeTutorDecision(decision), history: historyRows.reverse().map((item) => ({ role: item.role === "USER" ? "user" : "model", content: item.content })), problem: { id: problem.id, title: problem.title, description: problem.description, constraints: problem.constraints, topics: problem.topics.map(({ topic }) => topic.name), guidanceHints } });
     await db.$transaction([
       db.$executeRaw`INSERT INTO "TutorMessage" ("id", "conversationId", "role", "content", "hintLevel", "codeIncluded") VALUES (${randomUUID()}, ${session.id}, CAST('USER' AS "TutorMessageRole"), ${parsed.data.message}, ${hintLevel}, ${Boolean(parsed.data.code)}), (${randomUUID()}, ${session.id}, CAST('TUTOR' AS "TutorMessageRole"), ${result.message}, ${hintLevel}, false)`,
-      db.$executeRaw`UPDATE "TutorConversation" SET "lastHintLevel" = "currentHintLevel", "currentHintLevel" = ${hintLevel}, "hintsGiven" = "hintsGiven" + 1, "studentAskedForMoreHelp" = ${intent === "MORE_HELP"}, "updatedAt" = NOW() WHERE "id" = ${session.id}`,
+      db.$executeRaw`UPDATE "TutorConversation" SET "lastHintLevel" = "currentHintLevel", "currentHintLevel" = ${hintLevel}, "hintsGiven" = "hintsGiven" + 1, "studentAskedForMoreHelp" = ${intent === "MORE_HELP"}, "lastTutorAction" = ${decision.action}, "lastDecisionFocus" = ${decision.focus ?? null}, "updatedAt" = NOW() WHERE "id" = ${session.id}`,
     ]);
     return NextResponse.json({ message: result.message, hintLevel, intent, sessionId: session.id, nextSuggestedAction: intent === "REQUEST_FULL_SOLUTION" ? "Ask for an approach or pseudocode first." : "Try the next step, then share what changed." });
   } catch (cause) {

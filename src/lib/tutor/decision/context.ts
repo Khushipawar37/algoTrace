@@ -1,0 +1,2 @@
+import type { TutorDecision } from "./types";
+export function summarizeTutorDecision(value: TutorDecision): string { return [`Teaching action: ${value.action}`, `Objective: ${value.objective}`, `Focus: ${value.focus ?? "current reasoning"}`, `Reference execution: ${value.shouldReferenceExecution ? "yes" : "no"}`, `Reference code: ${value.shouldReferenceCode ? "yes" : "no"}`, `Ask for another attempt: ${value.shouldAskForAnotherAttempt ? "yes" : "no"}`, `Prompt style: ${value.recommendedPromptStyle ?? "concise and natural"}`].join("\n"); }

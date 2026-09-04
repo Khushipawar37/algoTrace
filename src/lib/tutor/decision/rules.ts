@@ -1,0 +1,7 @@
+import type { TutorHintLevel } from "../types";
+import type { TutorAction } from "./types";
+const MIN_LEVEL: Record<TutorAction, TutorHintLevel> = { ASK_REASONING_QUESTION: 0, ASK_COMPLEXITY_QUESTION: 0, ASK_DRY_RUN: 0, POINT_TO_CODE_REGION: 0, POINT_TO_FAILURE_TYPE: 0, EXPLAIN_CONCEPT: 2, COMPARE_ALTERNATIVES: 3, GUIDE_EDGE_CASE_REASONING: 0, GUIDE_BOUNDARY_REASONING: 0, GUIDE_STATE_REASONING: 1, GUIDE_COMPLEXITY_IMPROVEMENT: 0, PROVIDE_APPROACH_DIRECTION: 3, PROVIDE_PSEUDOCODE: 4, PROVIDE_CODE_FRAGMENT: 5, ASK_STUDENT_TO_TRY_AGAIN: 0, ASK_REFLECTION: 0, ACKNOWLEDGE_SUCCESS: 0, CLARIFY_STUDENT_QUESTION: 0, SAFE_FALLBACK: 0 };
+const DOWNGRADE: Partial<Record<TutorAction, TutorAction>> = { EXPLAIN_CONCEPT: "ASK_REASONING_QUESTION", COMPARE_ALTERNATIVES: "ASK_COMPLEXITY_QUESTION", GUIDE_STATE_REASONING: "ASK_DRY_RUN", PROVIDE_APPROACH_DIRECTION: "ASK_COMPLEXITY_QUESTION", PROVIDE_PSEUDOCODE: "ASK_STUDENT_TO_TRY_AGAIN", PROVIDE_CODE_FRAGMENT: "POINT_TO_CODE_REGION" };
+export const isActionAllowed = (action: TutorAction, level: TutorHintLevel) => level >= MIN_LEVEL[action] && action !== ("PROVIDE_FULL_SOLUTION" as TutorAction);
+export function constrainAction(action: TutorAction, level: TutorHintLevel): TutorAction { let current = action; while (!isActionAllowed(current, level)) current = DOWNGRADE[current] ?? "SAFE_FALLBACK"; return current; }
+export const allowedActionsAtLevel = (level: TutorHintLevel) => (Object.keys(MIN_LEVEL) as TutorAction[]).filter((action) => isActionAllowed(action, level));
