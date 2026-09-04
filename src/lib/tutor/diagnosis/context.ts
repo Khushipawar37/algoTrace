@@ -1,0 +1,2 @@
+import type { ExecutionDiagnosis } from "./types";
+export function summarizeExecutionDiagnosis(value: ExecutionDiagnosis): string { return [`Execution outcome: ${value.outcome}`, `Primary category: ${value.primaryCategory ?? "none"}`, `Summary: ${value.summary}`, `Evidence: ${value.evidence.map((item) => `${item.source}: ${item.description}`).join("; ") || "none"}`, `Confidence: ${value.confidence.toFixed(2)}`].join("\n"); }

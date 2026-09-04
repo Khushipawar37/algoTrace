@@ -1,7 +1,7 @@
 import { TUTOR_POLICIES } from "./constants";
 import type { TutorHintLevel, TutorProblemContext } from "./types";
 
-export function buildTutorSystemPrompt(input: { hintLevel: TutorHintLevel; problem: TutorProblemContext; codeProvided: boolean; attemptAnalysis?: string; retry?: boolean }) {
+export function buildTutorSystemPrompt(input: { hintLevel: TutorHintLevel; problem: TutorProblemContext; codeProvided: boolean; attemptAnalysis?: string; executionDiagnosis?: string; retry?: boolean }) {
   const policy = TUTOR_POLICIES[input.hintLevel];
   return `You are AlgoTrace Tutor, a patient DSA mentor, not a solution generator.
 Guide reasoning and prefer focused questions over answers. Address only the student's immediate blockage and encourage their next attempt.
@@ -23,6 +23,10 @@ Curated hints are private guidance only: ${input.problem.guidanceHints.join(" | 
 Internal attempt analysis (diagnostic context only; never quote it verbatim or expose it):
 ${input.attemptAnalysis ?? "No reliable attempt analysis is available."}
 The attempt analysis identifies what may be happening, but it never changes what you may reveal. The hint policy above always takes precedence. Treat low-confidence claims as uncertain and never claim static analysis proves correctness or failure.
+
+Internal execution diagnosis (trusted only when marked as matching current code; never invent or expose hidden data):
+${input.executionDiagnosis ?? "No matching execution evidence is available."}
+Diagnosis identifies execution-grounded failure signals but never changes reveal limits. The hint policy above remains authoritative.
 
 Reply concisely (normally under 140 words). Do not mention internal levels.`;
 }

@@ -9,9 +9,15 @@ import { determineNextHintLevel } from "@/lib/tutor/policy";
 import { generateTutorResponse } from "@/lib/tutor/tutor-service";
 import { analyzeStudentAttempt } from "@/lib/tutor/analyzer/analyzer";
 import { summarizeAttemptAnalysis } from "@/lib/tutor/analyzer/context";
+import { diagnoseExecutionWithFallback } from "@/lib/tutor/diagnosis/diagnosis-service";
+import { summarizeExecutionDiagnosis } from "@/lib/tutor/diagnosis/context";
+import { hashStudentCode } from "@/lib/tutor/diagnosis/hash";
+import { discardStaleExecution, normalizeExecutionResult } from "@/lib/tutor/diagnosis/normalize";
+import { loadRecentExecution } from "@/lib/tutor/diagnosis/store";
+import type { ExecutionContext } from "@/lib/tutor/diagnosis/types";
 import type { TutorHintLevel, TutorSessionState } from "@/lib/tutor/types";
 
-const schema = z.object({ problemId: z.string().min(1).max(100), message: z.string().trim().min(1).max(MAX_TUTOR_MESSAGE_LENGTH), code: z.string().max(MAX_TUTOR_CODE_LENGTH).optional(), language: z.enum(["cpp", "javascript", "python", "java"]).default("cpp"), sessionId: z.string().min(1).max(100).optional() });
+const schema = z.object({ problemId: z.string().min(1).max(100), message: z.string().trim().min(1).max(MAX_TUTOR_MESSAGE_LENGTH), code: z.string().max(MAX_TUTOR_CODE_LENGTH).optional(), language: z.enum(["cpp", "javascript", "python", "java"]).default("cpp"), sessionId: z.string().min(1).max(100).optional(), executionRef: z.string().uuid().optional() });
 const apiError = (message: string, status: number, code: string) => NextResponse.json({ error: { message, code } }, { status });
 type ConversationRow = { id: string; currentHintLevel: number; lastHintLevel: number | null; hintsGiven: number; studentAskedForMoreHelp: boolean };
 type MessageRow = { role: "USER" | "TUTOR"; content: string };
@@ -36,10 +42,19 @@ export async function POST(request: Request) {
     const intent = resolveStudentHelpIntent(parsed.data.message);
     const attemptAnalysis = await analyzeStudentAttempt({ language: parsed.data.language, code: parsed.data.code ?? "", starterCode: problem.templates[0]?.starterCode, problem: { title: problem.title, statement: problem.description, constraints: problem.constraints, examples: problem.examples, topics: problem.topics.map(({ topic }) => topic.name), expectedTimeComplexity: problem.expectedTimeComplexity ?? undefined, expectedSpaceComplexity: problem.expectedSpaceComplexity ?? undefined, canonicalPatterns: problem.canonicalPatterns, commonMistakes: problem.commonMistakes } });
     if (process.env.NODE_ENV === "development") console.info("Tutor analysis", { problem: problem.slug, state: attemptAnalysis.attemptState, approach: attemptAnalysis.approachDetected, issues: attemptAnalysis.issues.length, confidence: attemptAnalysis.confidence });
+    const currentCodeHash = parsed.data.code ? hashStudentCode(parsed.data.code) : undefined;
+    let execution: ExecutionContext | undefined = loadRecentExecution(parsed.data.executionRef, user.id, problem.id);
+    if (!execution && parsed.data.code) {
+      const latest = await db.submission.findFirst({ where: { userId: user.id, problemId: problem.id, language: parsed.data.language, sourceCode: parsed.data.code }, orderBy: { createdAt: "desc" }, select: { status: true, diagnostic: true, runtimeMs: true, memoryKb: true, passedCases: true, totalCases: true } });
+      if (latest) execution = normalizeExecutionResult({ source: "SUBMIT", verdict: latest.status, diagnostic: latest.diagnostic ?? undefined, runtimeMs: latest.runtimeMs ?? undefined, memoryKb: latest.memoryKb ?? undefined, passedCases: latest.passedCases, totalCases: latest.totalCases, codeHash: currentCodeHash });
+    }
+    execution = discardStaleExecution(execution ?? normalizeExecutionResult(), currentCodeHash);
+    const executionDiagnosis = await diagnoseExecutionWithFallback({ execution, attemptAnalysis, problem: { title: problem.title, description: problem.description, constraints: problem.constraints }, language: parsed.data.language, code: parsed.data.code ?? "" });
+    if (process.env.NODE_ENV === "development") console.info("Tutor diagnosis", { problem: problem.slug, source: execution.source, outcome: executionDiagnosis.outcome, category: executionDiagnosis.primaryCategory, confidence: executionDiagnosis.confidence });
     const state: TutorSessionState = { id: session.id, userId: user.id, problemId: problem.id, currentHintLevel: session.currentHintLevel as TutorHintLevel, hintsGiven: session.hintsGiven, lastHintLevel: session.lastHintLevel as TutorHintLevel | undefined, studentAskedForMoreHelp: session.studentAskedForMoreHelp, fullSolutionUnlocked: false };
     const hintLevel = determineNextHintLevel(state, intent);
     const guidanceHints = Array.isArray(problem.guidanceHints) ? problem.guidanceHints.filter((value): value is string => typeof value === "string") : [];
-    const result = await generateTutorResponse({ message: parsed.data.message, code: parsed.data.code, hintLevel, intent, attemptAnalysis: summarizeAttemptAnalysis(attemptAnalysis), history: historyRows.reverse().map((item) => ({ role: item.role === "USER" ? "user" : "model", content: item.content })), problem: { id: problem.id, title: problem.title, description: problem.description, constraints: problem.constraints, topics: problem.topics.map(({ topic }) => topic.name), guidanceHints } });
+    const result = await generateTutorResponse({ message: parsed.data.message, code: parsed.data.code, hintLevel, intent, attemptAnalysis: summarizeAttemptAnalysis(attemptAnalysis), executionDiagnosis: summarizeExecutionDiagnosis(executionDiagnosis), history: historyRows.reverse().map((item) => ({ role: item.role === "USER" ? "user" : "model", content: item.content })), problem: { id: problem.id, title: problem.title, description: problem.description, constraints: problem.constraints, topics: problem.topics.map(({ topic }) => topic.name), guidanceHints } });
     await db.$transaction([
       db.$executeRaw`INSERT INTO "TutorMessage" ("id", "conversationId", "role", "content", "hintLevel", "codeIncluded") VALUES (${randomUUID()}, ${session.id}, CAST('USER' AS "TutorMessageRole"), ${parsed.data.message}, ${hintLevel}, ${Boolean(parsed.data.code)}), (${randomUUID()}, ${session.id}, CAST('TUTOR' AS "TutorMessageRole"), ${result.message}, ${hintLevel}, false)`,
       db.$executeRaw`UPDATE "TutorConversation" SET "lastHintLevel" = "currentHintLevel", "currentHintLevel" = ${hintLevel}, "hintsGiven" = "hintsGiven" + 1, "studentAskedForMoreHelp" = ${intent === "MORE_HELP"}, "updatedAt" = NOW() WHERE "id" = ${session.id}`,
