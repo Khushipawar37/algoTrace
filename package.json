@@ -11,7 +11,8 @@
     "test": "node --import tsx --test tests/**/*.test.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "problems:validate": "tsx scripts/validate-problems.ts"
   },
   "keywords": [],
   "author": "",

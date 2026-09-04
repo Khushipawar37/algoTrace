@@ -58,6 +58,8 @@ model Problem {
   expectedSpaceComplexity String?
   canonicalPatterns       String[]              @default([])
   prerequisiteTopics      String[]              @default([])
+  commonMistakes           String[]              @default([])
+  guidanceHints            Json                  @default("[]")
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt
   topics                  ProblemTopic[]
