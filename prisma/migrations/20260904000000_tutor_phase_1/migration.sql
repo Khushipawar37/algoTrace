@@ -1,0 +1,7 @@
+CREATE TYPE "TutorMessageRole" AS ENUM ('USER', 'TUTOR');
+CREATE TABLE "TutorConversation" ("id" TEXT NOT NULL, "userId" TEXT NOT NULL, "problemId" TEXT NOT NULL, "currentHintLevel" INTEGER NOT NULL DEFAULT 0, "lastHintLevel" INTEGER, "hintsGiven" INTEGER NOT NULL DEFAULT 0, "studentAskedForMoreHelp" BOOLEAN NOT NULL DEFAULT false, "fullSolutionUnlocked" BOOLEAN NOT NULL DEFAULT false, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL, CONSTRAINT "TutorConversation_pkey" PRIMARY KEY ("id"));
+CREATE TABLE "TutorMessage" ("id" TEXT NOT NULL, "conversationId" TEXT NOT NULL, "role" "TutorMessageRole" NOT NULL, "content" TEXT NOT NULL, "hintLevel" INTEGER NOT NULL, "codeIncluded" BOOLEAN NOT NULL DEFAULT false, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "TutorMessage_pkey" PRIMARY KEY ("id"));
+CREATE INDEX "TutorConversation_userId_problemId_updatedAt_idx" ON "TutorConversation"("userId", "problemId", "updatedAt");
+CREATE INDEX "TutorMessage_conversationId_createdAt_idx" ON "TutorMessage"("conversationId", "createdAt");
+ALTER TABLE "TutorConversation" ADD CONSTRAINT "TutorConversation_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "Problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "TutorMessage" ADD CONSTRAINT "TutorMessage_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "TutorConversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;

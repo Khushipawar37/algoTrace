@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Activity, ArrowLeft } from "lucide-react";
 import { CodeEditorPane } from "./CodeEditorPane";
 import { canStartExecution, toggleFocus } from "./workspace-ui-state";
-import { TutorPanel } from "./TutorPanel";
+import { TutorChatPanel } from "./TutorChatPanel";
 import { TracePanel } from "./TracePanel";
 
 type ProblemDto={slug:string;title:string;difficulty:string;description:string;constraints:string[];topics:string[];examples:{input:string;output:string;explanation?:string|null}[];template:{starterCode:string;language:string;languageVersion:string}|null};
@@ -43,7 +43,7 @@ export function ProblemWorkspaceClient({slug}:{slug:string}) {
     <div className="flex-1 flex overflow-hidden">
       <section className={`basis-1/3 shrink-0 overflow-y-auto border-r border-bone/20 transition-all duration-200 ease-out ${sidePanelClass}`}><div className="p-6"><div className="flex flex-wrap gap-2 mb-4">{problem.topics.map(topic=><span key={topic} className="text-[10px] font-mono border border-bone/30 rounded-full px-2 py-1">{topic}</span>)}</div><p className="text-sm leading-6 text-bone/90">{problem.description}</p><h3 className="font-mono text-xs mt-6 mb-3">EXAMPLES</h3>{problem.examples.map((example,index)=><div key={index} className="mb-3 p-3 bg-[#171812] border border-bone/20 rounded font-mono text-xs whitespace-pre-wrap"><div className="text-bone/60">Input</div>{example.input}<div className="text-bone/60 mt-2">Output</div>{example.output}{example.explanation&&<p className="mt-2 text-bone/70">{example.explanation}</p>}</div>)}<h3 className="font-mono text-xs mt-6 mb-2">CONSTRAINTS</h3><ul className="list-disc pl-5 text-xs text-bone/70 space-y-1">{problem.constraints.map(constraint=><li key={constraint}>{constraint}</li>)}</ul></div></section>
       <section className="min-w-0 flex-1 min-h-0 flex flex-col transition-all duration-200 ease-out"><div className="flex-1 min-h-0"><CodeEditorPane code={code} starterCode={problem.template?.starterCode??""} onChangeCode={setCode} onRun={()=>execute("run")} onSubmit={()=>execute("submit")} busy={busy} focused={focused} onToggleFocus={()=>setFocused(toggleFocus)}/></div><div className="h-56 bg-[#171812] border-t border-bone/20 p-4 overflow-auto font-mono text-xs"><label className="text-bone/60">STDIN</label><textarea value={input} disabled={busy!==null} onChange={event=>setInput(event.target.value)} className="mt-1 mb-3 w-full h-16 bg-smoky border border-bone/30 rounded p-2 text-bone disabled:opacity-60"/><div className="text-bone/60">RESULT</div><pre className="whitespace-pre-wrap mt-1">{result?.error?.message??([verdict,result?.stdout&&`Output:\n${result.stdout}`,sample&&`Expected:\n${sample.output}`,result?.stderr&&`Diagnostic:\n${result.stderr}`,result?.passedCases!==undefined&&`${result.passedCases}/${result.totalCases} hidden cases passed`,result?.runtimeMs!==undefined&&`Runtime: ${result.runtimeMs}ms`].filter(Boolean).join("\n\n")||"Run output will appear here.")}</pre></div></section>
-      <aside className={`basis-1/4 shrink-0 bg-[#171812] transition-all duration-200 ease-out ${sidePanelClass}`}>{tab==="tutor"?<TutorPanel/>:<TracePanel/>}</aside>
+      <aside className={`basis-1/4 shrink-0 bg-[#171812] transition-all duration-200 ease-out ${sidePanelClass}`}>{tab==="tutor"?<TutorChatPanel problemId={problem.slug} code={code}/>:<TracePanel/>}</aside>
     </div>
   </div>;
 }
